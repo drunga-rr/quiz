@@ -37,13 +37,13 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCq1xdsv8YRkNmsiN9o-oYtFSp1Dc-bROpA2tYQ80pjv8qEvXPsIMy1HVriFVE49qc6A/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznFMQAFuACm3cGoTo8Z03kb_4FSmUYeWITdo4m_IOY6iTzeuAzJfd7dX8lSOm8sQRuWA/exec";
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const quizId = urlParams.get('id');
         if (quizId) {
-            iniciarTelaAluno(quizId);
+            prepararIdentificacaoAluno(quizId);
         } else {
             irParaHome();
         }
@@ -57,7 +57,6 @@
         `;
     }
 
-    // --- ÁREA DO PROFESSOR ---
     function carregarPainelProfessor() {
         document.getElementById('app').innerHTML = `
             <h2>Painel do Professor</h2>
@@ -80,7 +79,6 @@
         `;
     }
 
-    // Processamento inteligente do texto colado pelo professor
     function processarECriarQuiz() {
         const tema = document.getElementById('temaQuiz').value;
         const texto = document.getElementById('textoBruto').value;
@@ -91,7 +89,6 @@
         }
 
         try {
-            // 1. Extrair o gabarito do texto (procura por "Gabarito:" ou similar no final)
             let gabaritoMap = {};
             let matchGabarito = texto.match(/Gabarito.*?:\s*([^\n]+)/is);
             if (matchGabarito) {
@@ -108,7 +105,6 @@
                 });
             }
 
-            // 2. Separar as questões por número (ex: "1.", "2.", etc.)
             let questoesGeradas = [];
             let blocos = texto.split(/\n\s*(?=\d+\.\s)/);
 
@@ -120,7 +116,7 @@
                         let numQ = matchNum[1];
                         let pergunta = linhas[0].replace(/^\d+\.\s*/, '');
                         let opcoes = [];
-                        let correta = gabaritoMap[numQ] || 0; // Pega do gabarito ou 0 se não achar
+                        let correta = gabaritoMap[numQ] || 0;
 
                         for (let i = 1; i < linhas.length; i++) {
                             if (/^[A-D]\)/i.test(linhas[i])) {
@@ -140,7 +136,7 @@
             });
 
             if (questoesGeradas.length === 0) {
-                alert("Não foi possível extrair as questões automaticamente. Verifique se o formato contém '1. Pergunta', 'A)...' e o 'Gabarito:' no final.");
+                alert("Não foi possível extrair as questões automaticamente.");
                 return;
             }
 
@@ -190,10 +186,30 @@
 
     // --- ÁREA DO ALUNO ---
     let quizAtual = {};
+    let nomeAlunoGlobal = "";
     let indiceQuestaoAtual = 0;
     let acertosAluno = 0;
 
+    function prepararIdentificacaoAluno(quizId) {
+        document.getElementById('app').innerHTML = `
+            <h2>Identificação do Aluno 📝</h2>
+            <p style="text-align: center; color: #636e72;">Informe seu nome completo para iniciar o quiz.</p>
+            <label>Nome Completo:</label>
+            <input type="text" id="nomeAlunoInput" placeholder="Digite seu nome aqui...">
+            <button onclick="iniciarTelaAluno('${quizId}')">Começar Quiz</button>
+        `;
+    }
+
     function iniciarTelaAluno(quizId) {
+        const nomeInput = document.getElementById('nomeAlunoInput');
+        if (nomeInput) {
+            nomeAlunoGlobal = nomeInput.value.trim();
+            if (!nomeAlunoGlobal) {
+                alert("Por favor, digite seu nome completo antes de continuar!");
+                return;
+            }
+        }
+
         document.getElementById('app').innerHTML = `<h2>Carregando Quiz... ⏳</h2>`;
 
         fetch(SCRIPT_URL + `?acao=buscar_quiz&id=${quizId}`)
@@ -214,6 +230,7 @@
         const q = quizAtual.questoes[indiceQuestaoAtual];
         let html = `
             <h3>Tema: ${quizAtual.tema}</h3>
+            <p><b>Aluno(a):</b> ${nomeAlunoGlobal}</p>
             <p><b>Questão ${indiceQuestaoAtual + 1} de ${quizAtual.questoes.length}</b></p>
             <p style="font-size: 16px; font-weight: 500;">${q.pergunta}</p>
         `;
@@ -234,30 +251,14 @@
         if (indiceQuestaoAtual < quizAtual.questoes.length) {
             mostrarPerguntaAluno();
         } else {
-            finalizarQuizAluno();
+            enviarNotaFinalAutomatica();
         }
     }
 
-    function finalizarQuizAluno() {
+    function enviarNotaFinalAutomatica() {
         const total = quizAtual.questoes.length;
         
-        document.getElementById('app').innerHTML = `
-            <h2>Quiz Finalizado! 🎯</h2>
-            <p class="resultado-box">Você acertou ${acertosAluno} de ${total} questões!</p>
-            <label>Digite seu nome completo para registrar sua nota:</label>
-            <input type="text" id="nomeAlunoFinal" placeholder="Seu Nome Completo">
-            <button onclick="enviarNotaFinal('${quizAtual.tema}', ${acertosAluno}, ${total})">Enviar Nota</button>
-        `;
-    }
-
-    function enviarNotaFinal(tema, acertos, total) {
-        const nome = document.getElementById('nomeAlunoFinal').value.trim();
-        if (!nome) {
-            alert("Por favor, digite seu nome!");
-            return;
-        }
-
-        document.getElementById('app').innerHTML = `<h2>Enviando resultado... ⏳</h2>`;
+        document.getElementById('app').innerHTML = `<h2>Enviando seu resultado, aguarde... ⏳</h2>`;
 
         fetch(SCRIPT_URL, {
             method: "POST",
@@ -265,16 +266,16 @@
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify({
                 acao: "salvar_resposta",
-                tema: tema,
-                aluno: nome,
-                acertos: acertos,
+                tema: quizAtual.tema,
+                aluno: nomeAlunoGlobal,
+                acertos: acertosAluno,
                 total: total
             })
         }).then(() => {
             document.getElementById('app').innerHTML = `
-                <h2>Parabéns, ${nome}! 🏆</h2>
-                <p class="resultado-box">Sua nota (${acertos}/${total}) foi salva com sucesso na planilha do professor!</p>
-                <button onclick="location.href = location.pathname">Responder Outro Quiz</button>
+                <h2>Parabéns, ${nomeAlunoGlobal}! 🏆</h2>
+                <p class="resultado-box">Você acertou ${acertosAluno} de ${total} questões!</p>
+                <p style="text-align: center; color: #636e72;">Sua nota foi salva com sucesso na planilha do professor.</p>
             `;
         });
     }
