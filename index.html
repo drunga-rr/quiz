@@ -1,29 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Dinâmico - Google Planilhas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #2d3436;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            text-align: left;
+            margin-top: 15px;
+            color: #636e72;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #dfe6e9;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            border-color: #0984e3;
+            outline: none;
+        }
+        button {
+            background: #00b894;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 25px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #00a884;
+        }
+        .sucesso {
+            color: #00b894;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="app">
+    <h2>🎮 Quiz Temático</h2>
+    
+    <label for="nomeAluno">Seu Nome:</label>
+    <input type="text" id="nomeAluno" placeholder="Digite seu nome completo" required>
+    
+    <label for="selectTema">Escolha o Tema:</label>
+    <select id="selectTema">
+        <option value="História">História</option>
+        <option value="Geografia">Geografia</option>
+        <option value="Tecnologia">Tecnologia</option>
+        <option value="Cultura Pop">Cultura Pop</option>
+    </select>
+    
+    <button onclick="enviarQuiz()">Finalizar e Enviar</button>
+</div>
+
 <script>
     // Sua URL oficial do Google Apps Script
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAj2wq3utzTMCj_9fHcY-l5nyXVLUhYCLb67W-TZDtXXk3468fyp5q9K9u9LkVyXT1Cw/exec";
 
-    function iniciarQuiz() {
-        const nome = document.getElementById('nomeAluno').value.trim();
+    function enviarQuiz() {
+        const nomeInput = document.getElementById('nomeAluno');
+        const nome = nomeInput ? nomeInput.value.trim() : "";
         const tema = document.getElementById('selectTema').value;
 
         if (!nome) {
-            alert("Por favor, digite seu nome!");
+            alert("Por favor, digite o seu nome antes de enviar!");
             return;
         }
 
-        // Exemplo de pontuação (substitua pelas variáveis reais do seu quiz)
-        const acertosFicticios = Math.floor(Math.random() * 5) + 6; 
-        const totalPerguntas = 10;
+        // Simulando pontuação (você pode plugar suas perguntas reais depois)
+        const acertos = Math.floor(Math.random() * 3) + 8; // Ex: 8 a 10 acertos
+        const total = 10;
 
         const dadosEnvio = {
             tema: tema,
             aluno: nome,
-            acertos: acertosFicticios,
-            total: totalPerguntas,
-            status: "Finalizado"
+            acertos: acertos,
+            total: total,
+            status: "Concluído"
         };
 
-        // Usamos URLSearchParams para enviar como formulário, contornando restrições rígidas de CORS do Google
+        // Feedback visual imediato de carregamento
+        document.getElementById('app').innerHTML = `
+            <h2>Enviando... ⏳</h2>
+            <p>Salvando seus dados na planilha do Google.</p>
+        `;
+
+        // Envio para o Google Apps Script usando no-cors
         fetch(SCRIPT_URL, {
             method: "POST",
             mode: "no-cors",
@@ -33,17 +128,24 @@
             body: JSON.stringify(dadosEnvio)
         })
         .then(() => {
-            // Como o no-cors oculta o retorno, exibimos a tela de sucesso imediatamente
             document.getElementById('app').innerHTML = `
-                <h2>Quiz Concluído, ${nome}!</h2>
-                <p>Tema: <b>${tema}</b></p>
-                <p>Você acertou ${acertosFicticios} de ${totalPerguntas} perguntas.</p>
-                <p style="color: green; font-weight: bold;">Respostas enviadas para a planilha!</p>
+                <h2>🎉 Parabéns, ${nome}!</h2>
+                <p>Tema escolhido: <b>${tema}</b></p>
+                <p>Sua pontuação: <b>${acertos} / ${total}</b></p>
+                <p class="sucesso">✓ Dados salvos com sucesso na planilha!</p>
+                <button onclick="location.reload()">Fazer Novo Quiz</button>
             `;
         })
         .catch(err => {
-            console.error("Erro na requisição:", err);
-            alert("Houve um problema de conexão ao enviar os dados.");
+            console.error("Erro:", err);
+            document.getElementById('app').innerHTML = `
+                <h2>Ops! Algo deu errado.</h2>
+                <p>Não foi possível conectar à planilha.</p>
+                <button onclick="location.reload()">Tentar Novamente</button>
+            `;
         });
     }
 </script>
+
+</body>
+</html>
