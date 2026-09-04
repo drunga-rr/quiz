@@ -57,6 +57,7 @@
         `;
     }
 
+    // --- ÁREA DO PROFESSOR ---
     function carregarPainelProfessor() {
         document.getElementById('app').innerHTML = `
             <h2>Painel do Professor</h2>
@@ -69,7 +70,7 @@
         document.getElementById('app').innerHTML = `
             <h2>Criar Novo Quiz</h2>
             <label>Tema do Quiz:</label>
-            <input type="text" id="temaQuiz" value="">
+            <input type="text" id="temaQuiz" value="Socialismo e Comunismo - 8º Ano">
             
             <label>Cole o Texto Completo (Questões + Gabarito no final):</label>
             <textarea id="textoBruto" placeholder="Cole aqui o seu texto completo com as 30 questões e o gabarito..."></textarea>
@@ -79,6 +80,7 @@
         `;
     }
 
+    // Processamento inteligente do texto colado pelo professor
     function processarECriarQuiz() {
         const tema = document.getElementById('temaQuiz').value;
         const texto = document.getElementById('textoBruto').value;
@@ -89,6 +91,7 @@
         }
 
         try {
+            // 1. Extrair o gabarito do texto (procura por "Gabarito:" ou similar no final)
             let gabaritoMap = {};
             let matchGabarito = texto.match(/Gabarito.*?:\s*([^\n]+)/is);
             if (matchGabarito) {
@@ -105,6 +108,7 @@
                 });
             }
 
+            // 2. Separar as questões por número (ex: "1.", "2.", etc.)
             let questoesGeradas = [];
             let blocos = texto.split(/\n\s*(?=\d+\.\s)/);
 
@@ -116,7 +120,7 @@
                         let numQ = matchNum[1];
                         let pergunta = linhas[0].replace(/^\d+\.\s*/, '');
                         let opcoes = [];
-                        let correta = gabaritoMap[numQ] || 0;
+                        let correta = gabaritoMap[numQ] || 0; // Pega do gabarito ou 0 se não achar
 
                         for (let i = 1; i < linhas.length; i++) {
                             if (/^[A-D]\)/i.test(linhas[i])) {
@@ -136,7 +140,7 @@
             });
 
             if (questoesGeradas.length === 0) {
-                alert("Não foi possível extrair as questões. Verifique se o formato contém '1. Pergunta', 'A)...' e o 'Gabarito:' no final.");
+                alert("Não foi possível extrair as questões automaticamente. Verifique se o formato contém '1. Pergunta', 'A)...' e o 'Gabarito:' no final.");
                 return;
             }
 
@@ -148,18 +152,7 @@
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({ acao: "criar_quiz", tema: tema, questoes: questoesGeradas })
             }).then(() => {
-                // Como usamos no-cors, geramos o ID baseado no milissegundo atual
-                const quizIdGerado = "quiz_" + Date.now();
-                const linkAluno = window.location.origin + window.location.pathname + "?id=" + quizIdGerado;
-                
-                // Força um envio rápido para gravar o ID correspondente no Apps Script
-                fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ acao: "criar_quiz_com_id", id: quizIdGerado, tema: tema, questoes: questoesGeradas })
-                });
-
+                const linkAluno = window.location.origin + window.location.pathname + "?id=quiz_" + Date.now();
                 document.getElementById('app').innerHTML = `
                     <h2>Quiz Criado com Sucesso! 🎉</h2>
                     <p>Foram importadas <b>${questoesGeradas.length} questões</b>.</p>
@@ -195,6 +188,7 @@
         });
     }
 
+    // --- ÁREA DO ALUNO ---
     let quizAtual = {};
     let indiceQuestaoAtual = 0;
     let acertosAluno = 0;
@@ -213,8 +207,6 @@
             indiceQuestaoAtual = 0;
             acertosAluno = 0;
             mostrarPerguntaAluno();
-        }).catch(() => {
-            document.getElementById('app').innerHTML = `<h2>Erro ao carregar o quiz. Tente novamente mais tarde.</h2>`;
         });
     }
 
