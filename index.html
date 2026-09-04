@@ -6,11 +6,11 @@
     <title>Plataforma de Quizzes Escolares</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; box-sizing: border-box; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 650px; box-sizing: border-box; }
         h2 { color: #2d3436; text-align: center; margin-top: 0; }
         label { display: block; margin-top: 15px; font-weight: bold; color: #636e72; font-size: 14px; }
         input, select, textarea, button { width: 100%; padding: 12px; margin-top: 5px; border-radius: 6px; border: 1px solid #dfe6e9; font-size: 15px; box-sizing: border-box; }
-        textarea { resize: vertical; height: 120px; }
+        textarea { resize: vertical; height: 180px; font-family: monospace; font-size: 13px; }
         button { background: #0984e3; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 20px; transition: background 0.3s; }
         button:hover { background: #74b9ff; }
         .btn-secundario { background: #636e72; }
@@ -33,19 +33,15 @@
         <button class="btn-secundario" onclick="carregarPainelProfessor()">👨‍🏫 Área do Professor</button>
     </div>
 
-    <div id="app">
-        <!-- O conteúdo dinâmico carrega aqui -->
-    </div>
+    <div id="app"></div>
 </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygDr0aqN6zZp1h-yWYmhqE8IFTfWF8iroDT1DBILT7FEC5kwXZ8zPLhKlOENC7plCiSA/exec";
 
-    // Inicialização ao carregar a página
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const quizId = urlParams.get('id');
-
         if (quizId) {
             iniciarTelaAluno(quizId);
         } else {
@@ -56,7 +52,7 @@
     function irParaHome() {
         document.getElementById('app').innerHTML = `
             <h2>Portal de Quizzes</h2>
-            <p style="text-align: center; color: #636e72;">Bem-vindo! Utilize os botões acima para gerenciar os quizzes ou abra o link enviado pelo seu professor.</p>
+            <p style="text-align: center; color: #636e72;">Bem-vindo! Utilize os botões acima ou abra o link enviado pelo seu professor.</p>
             <button onclick="carregarPainelProfessor()">Acessar Painel do Professor</button>
         `;
     }
@@ -65,7 +61,7 @@
     function carregarPainelProfessor() {
         document.getElementById('app').innerHTML = `
             <h2>Painel do Professor</h2>
-            <button onclick="telaCriarQuiz()">➕ Criar Novo Quiz</button>
+            <button onclick="telaCriarQuiz()">➕ Criar Novo Quiz com o Texto Completo</button>
             <button class="btn-secundario" onclick="carregarResultadosAlunos()">📊 Ver Notas dos Alunos</button>
         `;
     }
@@ -74,53 +70,101 @@
         document.getElementById('app').innerHTML = `
             <h2>Criar Novo Quiz</h2>
             <label>Tema do Quiz:</label>
-            <input type="text" id="temaQuiz" placeholder="Ex: Biologia - Células">
+            <input type="text" id="temaQuiz" value="Socialismo e Comunismo - 8º Ano">
             
-            <label>Texto Bruto (Questões e Alternativas):</label>
-            <textarea id="textoBruto" placeholder="Cole aqui o texto com as perguntas e alternativas..."></textarea>
+            <label>Cole o Texto Completo (Questões + Gabarito no final):</label>
+            <textarea id="textoBruto" placeholder="Cole aqui o seu texto completo com as 30 questões e o gabarito..."></textarea>
             
-            <button onclick="processarECriarQuiz()">Gerar Link e Salvar Quiz</button>
+            <button onclick="processarECriarQuiz()">Processar e Salvar na Planilha</button>
             <button class="btn-secundario" onclick="carregarPainelProfessor()">Voltar</button>
         `;
     }
 
+    // Processamento inteligente do texto colado pelo professor
     function processarECriarQuiz() {
         const tema = document.getElementById('temaQuiz').value;
         const texto = document.getElementById('textoBruto').value;
 
         if (!tema || !texto) {
-            alert("Preencha o tema e o texto bruto.");
+            alert("Preencha o tema e cole o texto.");
             return;
         }
 
-        // Questões estruturadas para o banco de dados
-        const questoesGeradas = [
-            {
-                pergunta: "Questão principal baseada no tema: " + tema,
-                opcoes: ["Alternativa correta gerada", "Alternativa incorreta 1", "Alternativa incorreta 2", "Alternativa incorreta 3"],
-                correta: 0
+        try {
+            // 1. Extrair o gabarito do texto (procura por "Gabarito:" ou similar no final)
+            let gabaritoMap = {};
+            let matchGabarito = texto.match(/Gabarito.*?:\s*([^\n]+)/is);
+            if (matchGabarito) {
+                let gabaritoStr = matchGabarito[1];
+                let pares = gabaritoStr.split('|');
+                pares.forEach(par => {
+                    let partes = par.trim().split('-');
+                    if (partes.length === 2) {
+                        let numQ = partes[0].trim();
+                        let letraQ = partes[1].trim().toUpperCase();
+                        let indexLetra = {'A':0, 'B':1, 'C':2, 'D':3}[letraQ] || 0;
+                        gabaritoMap[numQ] = indexLetra;
+                    }
+                });
             }
-        ];
 
-        document.getElementById('app').innerHTML = `<h2>Criando quiz e salvando... ⏳</h2>`;
+            // 2. Separar as questões por número (ex: "1.", "2.", etc.)
+            let questoesGeradas = [];
+            let blocos = texto.split(/\n\s*(?=\d+\.\s)/);
 
-        fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ acao: "criar_quiz", tema: tema, questoes: questoesGeradas })
-        }).then(() => {
-            const linkAluno = window.location.origin + window.location.pathname + "?id=quiz_" + Date.now();
-            document.getElementById('app').innerHTML = `
-                <h2>Quiz Criado com Sucesso! 🎉</h2>
-                <p>Copie o link abaixo e envie para os seus alunos:</p>
-                <input type="text" value="${linkAluno}" readonly onclick="this.select()">
-                <button onclick="carregarPainelProfessor()">Voltar ao Painel</button>
-            `;
-        }).catch(err => {
-            alert("Erro ao criar quiz.");
-            carregarPainelProfessor();
-        });
+            blocos.forEach(bloco => {
+                let linhas = bloco.split('\n').map(l => l.trim()).filter(l => l);
+                if (linhas.length >= 5) {
+                    let matchNum = linhas[0].match(/^(\d+)\./);
+                    if (matchNum) {
+                        let numQ = matchNum[1];
+                        let pergunta = linhas[0].replace(/^\d+\.\s*/, '');
+                        let opcoes = [];
+                        let correta = gabaritoMap[numQ] || 0; // Pega do gabarito ou 0 se não achar
+
+                        for (let i = 1; i < linhas.length; i++) {
+                            if (/^[A-D]\)/i.test(linhas[i])) {
+                                opcoes.push(linhas[i].replace(/^[A-D]\)\s*/i, ''));
+                            }
+                        }
+
+                        if (opcoes.length >= 4) {
+                            questoesGeradas.push({
+                                pergunta: pergunta,
+                                opcoes: opcoes.slice(0, 4),
+                                correta: correta
+                            });
+                        }
+                    }
+                }
+            });
+
+            if (questoesGeradas.length === 0) {
+                alert("Não foi possível extrair as questões automaticamente. Verifique se o formato contém '1. Pergunta', 'A)...' e o 'Gabarito:' no final.");
+                return;
+            }
+
+            document.getElementById('app').innerHTML = `<h2>Salvando ${questoesGeradas.length} questões na planilha... ⏳</h2>`;
+
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ acao: "criar_quiz", tema: tema, questoes: questoesGeradas })
+            }).then(() => {
+                const linkAluno = window.location.origin + window.location.pathname + "?id=quiz_" + Date.now();
+                document.getElementById('app').innerHTML = `
+                    <h2>Quiz Criado com Sucesso! 🎉</h2>
+                    <p>Foram importadas <b>${questoesGeradas.length} questões</b>.</p>
+                    <p>Copie o link abaixo e envie para os seus alunos:</p>
+                    <input type="text" value="${linkAluno}" readonly onclick="this.select()">
+                    <button onclick="carregarPainelProfessor()">Voltar ao Painel</button>
+                `;
+            });
+
+        } catch (e) {
+            alert("Erro ao processar o texto: " + e.message);
+        }
     }
 
     function carregarResultadosAlunos() {
@@ -141,11 +185,6 @@
             }
             html += `<br><button class="btn-secundario" onclick="carregarPainelProfessor()">Voltar</button>`;
             document.getElementById('app').innerHTML = html;
-        }).catch(err => {
-            document.getElementById('app').innerHTML = `
-                <p>Erro ao carregar notas.</p>
-                <button onclick="carregarPainelProfessor()">Voltar</button>
-            `;
         });
     }
 
@@ -168,8 +207,6 @@
             indiceQuestaoAtual = 0;
             acertosAluno = 0;
             mostrarPerguntaAluno();
-        }).catch(err => {
-            document.getElementById('app').innerHTML = `<h2>Erro ao carregar o quiz do servidor.</h2>`;
         });
     }
 
@@ -236,7 +273,7 @@
         }).then(() => {
             document.getElementById('app').innerHTML = `
                 <h2>Parabéns, ${nome}! 🏆</h2>
-                <p class="resultado-box">Sua nota (${acertos}/${total}) foi salva com sucesso!</p>
+                <p class="resultado-box">Sua nota (${acertos}/${total}) foi salva com sucesso na planilha do professor!</p>
                 <button onclick="location.href = location.pathname">Responder Outro Quiz</button>
             `;
         });
