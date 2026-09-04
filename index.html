@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz Dinâmico com Google Planilhas</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        select, input, button { width: 100%; padding: 10px; margin-top: 15px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
+        button { background: #4CAF50; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #45a049; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="app">
+    <h2>Escolha o Tema do Quiz</h2>
+    <input type="text" id="nomeAluno" placeholder="Seu Nome Completo" required>
+    
+    <select id="selectTema">
+        <option value="História">História</option>
+        <option value="Geografia">Geografia</option>
+        <option value="Tecnologia">Tecnologia</option>
+    </select>
+    
+    <button onclick="iniciarQuiz()">Começar Quiz</button>
+</div>
+
+<script>
+    // Cole aqui a URL gerada pelo Google Apps Script (Web App)
+    const SCRIPT_URL = "SUA_URL_DO_APPS_SCRIPT_AQUI";
+
+    function iniciarQuiz() {
+        const nome = document.getElementById('nomeAluno').value;
+        const tema = document.getElementById('selectTema').value;
+
+        if (!nome) {
+            alert("Por favor, digite seu nome!");
+            return;
+        }
+
+        // Exemplo simulado de pontuação após o quiz (você pode adaptar para as perguntas reais)
+        const acertosFicticios = Math.floor(Math.random() * 5) + 6; // Ex: 6 a 10 acertos
+        const totalPerguntas = 10;
+
+        const dadosEnvio = {
+            tema: tema,
+            aluno: nome,
+            acertos: acertosFicticios,
+            total: totalPerguntas,
+            status: "Finalizado"
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors", // Necessário para chamadas diretas ao Apps Script via front-end estático
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dadosEnvio)
+        }).then(() => {
+            document.getElementById('app').innerHTML = `
+                <h2>Quiz Concluído, ${nome}!</h2>
+                <p>Tema: <b>${tema}</b></p>
+                <p>Você acertou ${acertosFicticios} de ${totalPerguntas} perguntas.</p>
+                <p style="color: green; font-weight: bold;">Seus dados foram salvos com sucesso na planilha!</p>
+            `;
+        }).catch(err => {
+            console.error("Erro ao salvar:", err);
+            alert("Erro ao enviar os dados para a planilha.");
+        });
+    }
+</script>
+
+</body>
+</html>
