@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
@@ -9,193 +8,239 @@
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
 
-<title>Plataforma de Quizzes</title>
-
+<title>Sistema de Quiz</title>
 
 <style>
 
+* {
+    box-sizing: border-box;
+}
+
 body {
-
-    font-family: 'Segoe UI',
-                 Tahoma,
-                 Geneva,
-                 Verdana,
-                 sans-serif;
-
-    background: #f4f7f6;
 
     margin: 0;
 
-    padding: 20px;
+    font-family: Arial, sans-serif;
 
-    display: flex;
+    background: #f2f4f7;
 
-    justify-content: center;
-
-    align-items: center;
-
-    min-height: 100vh;
+    color: #222;
 
 }
-
 
 .container {
 
-    background: white;
+    width: 95%;
 
-    padding: 30px;
+    max-width: 900px;
 
-    border-radius: 12px;
-
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-
-    width: 100%;
-
-    max-width: 650px;
-
-    box-sizing: border-box;
+    margin: 30px auto;
 
 }
 
+.card {
 
-h2 {
+    background: white;
 
-    color: #2d3436;
+    padding: 25px;
 
-    text-align: center;
+    border-radius: 12px;
+
+    box-shadow: 0 3px 12px rgba(0,0,0,.10);
+
+    margin-bottom: 20px;
+
+}
+
+h1,
+h2,
+h3 {
 
     margin-top: 0;
 
 }
 
-
-h3 {
-
-    color: #2d3436;
-
-}
-
-
-label {
-
-    display: block;
-
-    margin-top: 15px;
-
-    font-weight: bold;
-
-    color: #636e72;
-
-    font-size: 14px;
-
-}
-
-
 input,
 textarea,
-button {
+button,
+select {
+
+    font-family: inherit;
+
+    font-size: 16px;
+
+}
+
+input,
+textarea {
 
     width: 100%;
 
     padding: 12px;
 
-    margin-top: 5px;
+    border: 1px solid #ccc;
 
-    border-radius: 6px;
+    border-radius: 7px;
 
-    border: 1px solid #dfe6e9;
-
-    font-size: 15px;
-
-    box-sizing: border-box;
+    margin: 6px 0 15px;
 
 }
-
 
 textarea {
 
+    min-height: 350px;
+
     resize: vertical;
 
-    height: 180px;
-
-    font-family: monospace;
-
-    font-size: 13px;
-
 }
-
 
 button {
 
-    background: #0984e3;
-
-    color: white;
+    padding: 11px 18px;
 
     border: none;
 
+    border-radius: 7px;
+
     cursor: pointer;
 
-    font-weight: bold;
+    background: #1976d2;
 
-    margin-top: 20px;
+    color: white;
+
+    margin: 4px;
 
 }
-
 
 button:hover {
 
-    background: #74b9ff;
+    opacity: .9;
 
 }
 
+button.secundario {
 
-button:disabled {
-
-    background: #b2bec3;
-
-    cursor: not-allowed;
+    background: #666;
 
 }
 
+button.perigo {
 
-.btn-secundario {
-
-    background: #636e72;
+    background: #d32f2f;
 
 }
 
+button.sucesso {
 
-.opcao-btn {
+    background: #2e7d32;
 
-    background: #f1f2f6;
+}
 
-    color: #2d3436;
+.hidden {
 
-    border: 1px solid #dfe6e9;
+    display: none !important;
+
+}
+
+.opcao {
+
+    display: block;
+
+    width: 100%;
 
     text-align: left;
 
-    margin-top: 10px;
+    background: #eee;
+
+    color: #222;
+
+    margin: 10px 0;
+
+    padding: 15px;
 
 }
 
+.opcao.selecionada {
 
-.resultado-box {
+    background: #1976d2;
 
-    text-align: center;
+    color: white;
+
+}
+
+.navegacao {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-top: 25px;
+
+}
+
+.progresso {
+
+    background: #ddd;
+
+    height: 10px;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    margin: 15px 0 25px;
+
+}
+
+.progresso-barra {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: #1976d2;
+
+    transition: width .3s;
+
+}
+
+.questao-numero {
+
+    font-size: 14px;
+
+    color: #666;
+
+    margin-bottom: 10px;
+
+}
+
+.questao {
 
     font-size: 20px;
 
     font-weight: bold;
 
-    margin: 20px 0;
-
-    color: #00b894;
+    margin-bottom: 20px;
 
 }
 
+.resultado {
 
-table {
+    text-align: center;
+
+}
+
+.nota {
+
+    font-size: 48px;
+
+    font-weight: bold;
+
+    margin: 20px;
+
+}
+
+.tabela {
 
     width: 100%;
 
@@ -203,68 +248,102 @@ table {
 
     margin-top: 15px;
 
-    font-size: 14px;
-
 }
 
+.tabela th,
+.tabela td {
 
-th,
-td {
+    padding: 10px;
 
-    border: 1px solid #dfe6e9;
-
-    padding: 8px;
+    border: 1px solid #ddd;
 
     text-align: left;
 
 }
 
+.tabela th {
 
-th {
-
-    background: #f1f2f6;
-
-}
-
-
-.menu-topo {
-
-    display: flex;
-
-    gap: 10px;
-
-    margin-bottom: 20px;
-
-    border-bottom: 2px solid #f1f2f6;
-
-    padding-bottom: 10px;
+    background: #eee;
 
 }
 
+.link {
 
-.menu-topo button {
+    background: #f1f1f1;
 
-    margin-top: 0;
+    padding: 12px;
 
-    font-size: 13px;
+    border-radius: 7px;
 
-    padding: 8px;
+    word-break: break-all;
 
-    flex: 1;
-
-}
-
-
-.progresso {
-
-    text-align: center;
-
-    color: #636e72;
-
-    margin-bottom: 15px;
+    margin: 10px 0;
 
 }
 
+.aviso {
+
+    padding: 12px;
+
+    background: #fff3cd;
+
+    border-radius: 7px;
+
+    margin: 10px 0;
+
+}
+
+.sucesso-msg {
+
+    padding: 12px;
+
+    background: #d4edda;
+
+    border-radius: 7px;
+
+    margin: 10px 0;
+
+}
+
+@media(max-width:600px) {
+
+    .container {
+
+        width: 100%;
+
+        margin: 10px auto;
+
+    }
+
+    .card {
+
+        padding: 18px;
+
+        border-radius: 8px;
+
+    }
+
+    .questao {
+
+        font-size: 18px;
+
+    }
+
+    button {
+
+        width: 100%;
+
+        margin: 4px 0;
+
+    }
+
+    .navegacao {
+
+        flex-direction: column;
+
+    }
+
+}
 
 </style>
 
@@ -277,24 +356,232 @@ th {
 <div class="container">
 
 
-<div class="menu-topo">
+<!-- ================================================= -->
+<!-- INÍCIO -->
+<!-- ================================================= -->
 
-<button onclick="irParaHome()">
-🏠 Portal Principal
+<div id="telaInicio" class="card">
+
+<h1>Sistema de Quiz</h1>
+
+<p>Escolha uma opção:</p>
+
+<button onclick="mostrarCriarQuiz()">
+Criar Quiz
 </button>
 
-
-<button class="btn-secundario"
-        onclick="carregarPainelProfessor()">
-
-👨‍🏫 Área do Professor
-
+<button onclick="mostrarResultados()">
+Resultados
 </button>
 
 </div>
 
 
-<div id="app"></div>
+<!-- ================================================= -->
+<!-- CRIAR QUIZ -->
+<!-- ================================================= -->
+
+<div id="telaCriar" class="card hidden">
+
+<h2>Criar Quiz</h2>
+
+
+<label>Tema</label>
+
+<input
+    type="text"
+    id="temaQuiz"
+    placeholder="Digite o tema do quiz..."
+>
+
+
+<label>
+Questões
+</label>
+
+<p>
+Use exatamente este padrão:
+</p>
+
+<div class="aviso">
+
+<pre style="white-space:pre-wrap;">1. Quem é considerado um dos principais pensadores e fundadores do socialismo científico?
+A) Adam Smith
+B) Karl Marx
+C) John Locke
+D) Jean-Jacques Rousseau
+Resposta: B
+
+2. Qual era o principal objetivo do socialismo utópico?
+A) Criar uma sociedade ideal de forma pacífica e cooperativa
+B) Derrubar o governo através de uma revolução armada imediata
+C) Fortalecer o poder dos grandes empresários e banqueiros
+D) Extinguir o comércio e o uso de moedas e mercados
+Resposta: A</pre>
+
+</div>
+
+
+<textarea
+    id="textoQuestoes"
+    placeholder="Cole ou digite as questões aqui..."
+></textarea>
+
+
+<button
+    class="sucesso"
+    onclick="criarQuiz()">
+    Criar Quiz
+</button>
+
+<button
+    class="secundario"
+    onclick="voltarInicio()">
+    Voltar
+</button>
+
+
+<div id="resultadoCriacao"></div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- ALUNO -->
+<!-- ================================================= -->
+
+<div id="telaAluno" class="card hidden">
+
+<h2 id="tituloAluno"></h2>
+
+<div id="identificacao">
+
+<label>Nome do aluno</label>
+
+<input
+    type="text"
+    id="nomeAluno"
+    placeholder="Digite seu nome"
+>
+
+<button onclick="iniciarQuiz()">
+Começar Quiz
+</button>
+
+</div>
+
+
+<div id="areaQuiz" class="hidden">
+
+<div class="progresso">
+
+<div
+    id="barraProgresso"
+    class="progresso-barra">
+</div>
+
+</div>
+
+
+<div id="numeroQuestao"
+     class="questao-numero">
+</div>
+
+<div id="textoQuestao"
+     class="questao">
+</div>
+
+<div id="opcoes"></div>
+
+
+<div class="navegacao">
+
+<button
+    id="btnAnterior"
+    class="secundario"
+    onclick="questaoAnterior()">
+    ← Anterior
+</button>
+
+<button
+    id="btnProxima"
+    onclick="proximaQuestao()">
+    Próxima →
+</button>
+
+<button
+    id="btnFinalizar"
+    class="sucesso hidden"
+    onclick="finalizarQuiz()">
+    Finalizar Quiz
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- RESULTADO DO ALUNO -->
+<!-- ================================================= -->
+
+<div id="telaResultado"
+     class="card hidden resultado">
+
+<h2>Resultado</h2>
+
+<div id="resultadoAluno"></div>
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- RESULTADOS PROFESSOR -->
+<!-- ================================================= -->
+
+<div id="telaResultados"
+     class="card hidden">
+
+<h2>Resultados</h2>
+
+
+<label>Filtrar por quiz</label>
+
+<select
+    id="filtroQuiz"
+    onchange="carregarResultados()">
+
+<option value="">
+Todos os quizzes
+</option>
+
+</select>
+
+
+<div id="tabelaResultados"></div>
+
+
+<button
+    onclick="exportarCSV()"
+    class="sucesso">
+    Exportar CSV
+</button>
+
+<button
+    onclick="window.print()"
+    class="secundario">
+    Imprimir
+</button>
+
+<button
+    onclick="voltarInicio()"
+    class="secundario">
+    Voltar
+</button>
+
+</div>
 
 
 </div>
@@ -303,184 +590,115 @@ th {
 <script>
 
 
-// ============================================================
+// ======================================================
 // CONFIGURAÇÃO
-// ============================================================
+// ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbzPyTUQNzWyS0dH947JJKZWxLxPlkYYIojoiDmlqbJ4mTc40-GXjttydl3EVZfiadRjEQ/exec";
+"https://script.google.com/macros/s/AKfycbwTlYMFgt2xsUV5zEypn2IO3ZF4diGnpRliY7lfqMk-0K-ZqbYmosd0ZVx5hjX14q7PPg/exec";
 
 
-// ============================================================
-// VARIÁVEIS DO ALUNO
-// ============================================================
+let quizId = "";
 
-let quizAtual = {};
+let quizTema = "";
 
-let nomeAlunoGlobal = "";
+let questoes = [];
 
-let indiceQuestaoAtual = 0;
+let questaoAtual = 0;
 
-let acertosAluno = 0;
+let respostasAluno = {};
 
-let respostasAluno = [];
+let nomeAluno = "";
 
-let quizFinalizado = false;
+let resultadosAtuais = [];
 
 
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
+// ======================================================
+// TELA
+// ======================================================
+
+function esconderTodas() {
+
+    document.querySelectorAll(".card").forEach(function(el) {
+
+        el.classList.add("hidden");
+
+    });
+
+}
+
+
+function mostrarCriarQuiz() {
+
+    esconderTodas();
+
+    document
+        .getElementById("telaCriar")
+        .classList.remove("hidden");
+
+}
+
+
+function voltarInicio() {
+
+    esconderTodas();
+
+    document
+        .getElementById("telaInicio")
+        .classList.remove("hidden");
+
+}
+
+
+// ======================================================
+// IDENTIFICA QUIZ PELA URL
+// ======================================================
 
 window.onload = function() {
 
-    const parametros =
+    const params =
         new URLSearchParams(window.location.search);
 
+    const id =
+        params.get("id");
 
-    const quizId =
-        parametros.get("id");
+    if (id) {
 
+        quizId = id;
 
-    if (quizId) {
-
-        prepararIdentificacaoAluno(quizId);
+        carregarQuiz();
 
     } else {
 
-        irParaHome();
+        voltarInicio();
 
     }
 
 };
 
 
-// ============================================================
-// HOME
-// ============================================================
-
-function irParaHome() {
-
-    document.getElementById("app").innerHTML = `
-
-        <h2>Portal de Quizzes</h2>
-
-        <p style="text-align:center;color:#636e72">
-
-        Bem-vindo!
-
-        </p>
-
-        <button onclick="carregarPainelProfessor()">
-
-        Acessar Painel do Professor
-
-        </button>
-
-    `;
-
-}
-
-
-// ============================================================
-// PAINEL PROFESSOR
-// ============================================================
-
-function carregarPainelProfessor() {
-
-    document.getElementById("app").innerHTML = `
-
-        <h2>Painel do Professor</h2>
-
-        <button onclick="telaCriarQuiz()">
-
-        ➕ Criar Novo Quiz
-
-        </button>
-
-
-        <button class="btn-secundario"
-                onclick="carregarResultadosAlunos()">
-
-        📊 Ver Notas dos Alunos
-
-        </button>
-
-    `;
-
-}
-
-
-// ============================================================
+// ======================================================
 // CRIAR QUIZ
-// ============================================================
+// ======================================================
 
-function telaCriarQuiz() {
-
-    document.getElementById("app").innerHTML = `
-
-        <h2>Criar Novo Quiz</h2>
-
-
-        <label>Tema do Quiz:</label>
-
-        <input
-            type="text"
-            id="temaQuiz"
-            value="Socialismo e Comunismo - 8º Ano"
-        >
-
-
-        <label>
-
-        Cole o Texto Completo:
-
-        </label>
-
-
-        <textarea
-            id="textoBruto"
-            placeholder="Cole aqui as questões e o gabarito..."
-        ></textarea>
-
-
-        <button onclick="processarECriarQuiz()">
-
-        Processar e Salvar
-
-        </button>
-
-
-        <button
-            class="btn-secundario"
-            onclick="carregarPainelProfessor()">
-
-        Voltar
-
-        </button>
-
-    `;
-
-}
-
-
-// ============================================================
-// PROCESSAR QUIZ
-// ============================================================
-
-function processarECriarQuiz() {
+function criarQuiz() {
 
     const tema =
-        document.getElementById("temaQuiz").value.trim();
-
+        document
+            .getElementById("temaQuiz")
+            .value
+            .trim();
 
     const texto =
-        document.getElementById("textoBruto").value.trim();
+        document
+            .getElementById("textoQuestoes")
+            .value
+            .trim();
 
 
-    if (!tema || !texto) {
+    if (!texto) {
 
-        alert("Preencha o tema e cole o texto.");
+        alert("Digite as questões.");
 
         return;
 
@@ -489,218 +707,48 @@ function processarECriarQuiz() {
 
     try {
 
+        const questoesCriadas =
+            interpretarQuestoes(texto);
 
-        // ------------------------------------------------------
-        // GABARITO
-        // ------------------------------------------------------
 
-        let gabaritoMap = {};
+        if (questoesCriadas.length === 0) {
 
-
-        let matchGabarito =
-            texto.match(/Gabarito.*?:\s*([^\n]+)/is);
-
-
-        if (matchGabarito) {
-
-            let gabaritoStr =
-                matchGabarito[1];
-
-
-            let pares =
-                gabaritoStr.split("|");
-
-
-            pares.forEach(function(par) {
-
-                let partes =
-                    par.trim().split("-");
-
-
-                if (partes.length === 2) {
-
-                    let num =
-                        partes[0].trim();
-
-
-                    let letra =
-                        partes[1].trim().toUpperCase();
-
-
-                    let mapa = {
-
-                        A: 0,
-
-                        B: 1,
-
-                        C: 2,
-
-                        D: 3
-
-                    };
-
-
-                    if (mapa[letra] !== undefined) {
-
-                        gabaritoMap[num] =
-                            mapa[letra];
-
-                    }
-
-                }
-
-            });
-
-        }
-
-
-        // ------------------------------------------------------
-        // QUESTÕES
-        // ------------------------------------------------------
-
-        let questoesGeradas = [];
-
-
-        let blocos =
-            texto.split(/\n\s*(?=\d+\.\s)/);
-
-
-        blocos.forEach(function(bloco) {
-
-
-            let linhas =
-                bloco
-                .split("\n")
-                .map(function(l) {
-                    return l.trim();
-                })
-                .filter(function(l) {
-                    return l;
-                });
-
-
-            if (linhas.length >= 5) {
-
-
-                let matchNum =
-                    linhas[0].match(/^(\d+)\./);
-
-
-                if (!matchNum) {
-                    return;
-                }
-
-
-                let numQ =
-                    matchNum[1];
-
-
-                let pergunta =
-                    linhas[0]
-                    .replace(/^\d+\.\s*/, "");
-
-
-                let opcoes = [];
-
-
-                for (
-                    let i = 1;
-                    i < linhas.length;
-                    i++
-                ) {
-
-
-                    if (/^[A-D]\)/i.test(linhas[i])) {
-
-                        opcoes.push(
-
-                            linhas[i]
-                            .replace(
-                                /^[A-D]\)\s*/i,
-                                ""
-                            )
-
-                        );
-
-                    }
-
-                }
-
-
-                if (opcoes.length >= 4) {
-
-
-                    if (
-                        gabaritoMap[numQ] === undefined
-                    ) {
-
-                        alert(
-                            "Não foi encontrado o gabarito da questão " +
-                            numQ
-                        );
-
-                        return;
-
-                    }
-
-
-                    questoesGeradas.push({
-
-                        pergunta: pergunta,
-
-                        opcoes: opcoes.slice(0,4),
-
-                        correta:
-                            gabaritoMap[numQ]
-
-                    });
-
-                }
-
-            }
-
-        });
-
-
-        if (questoesGeradas.length === 0) {
-
-            alert(
-                "Não foi possível extrair as questões."
+            throw new Error(
+                "Nenhuma questão válida foi encontrada."
             );
 
-            return;
-
         }
 
 
-        // ------------------------------------------------------
-        // ID ÚNICO
-        // ------------------------------------------------------
+        // ----------------------------------------------
+        // ID É GERADO UMA ÚNICA VEZ
+        // ----------------------------------------------
 
-        const quizId =
+        const novoQuizId =
             "quiz_" +
             Date.now() +
             "_" +
-            Math.floor(Math.random() * 1000);
+            Math.floor(Math.random() * 10000);
 
 
-        document.getElementById("app").innerHTML = `
+        const dados = {
 
-            <h2>
+            acao: "criar_quiz",
 
-            Salvando ${questoesGeradas.length}
-            questões...
+            id: novoQuizId,
 
-            ⏳
+            tema: tema,
 
-            </h2>
+            questoes: questoesCriadas
 
-        `;
+        };
 
 
-        // ------------------------------------------------------
-        // ENVIO
-        // ------------------------------------------------------
+        document
+            .getElementById("resultadoCriacao")
+            .innerHTML =
+            "<p>Criando quiz...</p>";
+
 
         fetch(SCRIPT_URL, {
 
@@ -708,489 +756,656 @@ function processarECriarQuiz() {
 
             mode: "no-cors",
 
-            headers: {
-
-                "Content-Type":
-                    "text/plain;charset=utf-8"
-
-            },
-
-            body: JSON.stringify({
-
-                acao: "criar_quiz",
-
-                id: quizId,
-
-                tema: tema,
-
-                questoes:
-                    questoesGeradas
-
-            })
+            body: JSON.stringify(dados)
 
         })
-
-
         .then(function() {
 
-
-            // --------------------------------------------------
-            // MESMO ID QUE FOI SALVO
-            // --------------------------------------------------
-
-            const linkAluno =
+            const link =
                 window.location.origin +
                 window.location.pathname +
                 "?id=" +
-                encodeURIComponent(quizId);
+                encodeURIComponent(novoQuizId);
 
 
-            document.getElementById("app").innerHTML = `
+            document
+                .getElementById("resultadoCriacao")
+                .innerHTML = `
 
-                <h2>
+                <div class="sucesso-msg">
 
-                Quiz Criado com Sucesso! 🎉
+                    <strong>Quiz criado!</strong>
 
-                </h2>
+                    <p>Link para enviar aos alunos:</p>
 
+                    <div class="link">
+                        ${link}
+                    </div>
 
-                <p>
+                    <button
+                        onclick="copiarLink('${link}')">
+                        Copiar Link
+                    </button>
 
-                Foram importadas
+                    <button
+                        onclick="window.open('${link}', '_blank')">
+                        Abrir Quiz
+                    </button>
 
-                <b>
-                ${questoesGeradas.length}
-                questões
-                </b>.
+                </div>
 
-                </p>
-
-
-                <p>
-
-                Envie este link aos alunos:
-
-                </p>
-
-
-                <input
-                    type="text"
-                    value="${linkAluno}"
-                    readonly
-                    onclick="this.select()"
-                >
-
-
-                <button
-                    onclick="navigator.clipboard.writeText('${linkAluno}')">
-
-                    📋 Copiar Link
-
-                </button>
-
-
-                <button
-                    class="btn-secundario"
-                    onclick="carregarPainelProfessor()">
-
-                    Voltar ao Painel
-
-                </button>
-
-            `;
+                `;
 
         })
-
-
         .catch(function(erro) {
 
-            alert(
-                "Erro ao enviar o quiz: " +
-                erro.message
-            );
+            document
+                .getElementById("resultadoCriacao")
+                .innerHTML =
+                "<p>Erro: " +
+                erro +
+                "</p>";
 
         });
 
 
     } catch (erro) {
 
-        alert(
-            "Erro ao processar o texto: " +
-            erro.message
-        );
+        alert(erro.message);
 
     }
 
 }
 
 
-// ============================================================
-// IDENTIFICAÇÃO DO ALUNO
-// ============================================================
+// ======================================================
+// INTERPRETAR QUESTÕES
+// ======================================================
 
-function prepararIdentificacaoAluno(quizId) {
+function interpretarQuestoes(texto) {
 
-    document.getElementById("app").innerHTML = `
-
-        <h2>
-
-        Identificação do Aluno 📝
-
-        </h2>
+    const resultado = [];
 
 
-        <p style="text-align:center;color:#636e72">
-
-        Informe seu nome completo para iniciar.
-
-        </p>
-
-
-        <label>
-
-        Nome Completo:
-
-        </label>
+    // Cada bloco começa com:
+    // 1.
+    // 2.
+    // 3.
+    const regex =
+        /(?:^|\n)\s*(\d+)\.\s*([\s\S]*?)(?=\n\s*\d+\.\s|$)/g;
 
 
-        <input
-            type="text"
-            id="nomeAlunoInput"
-            placeholder="Digite seu nome..."
-        >
+    let match;
 
 
-        <button
-            onclick="iniciarQuiz('${quizId}')">
+    while ((match = regex.exec(texto)) !== null) {
 
-            Começar Quiz
+        const numero =
+            Number(match[1]);
 
-        </button>
-
-    `;
-
-}
+        const bloco =
+            match[2].trim();
 
 
-// ============================================================
-// INICIAR QUIZ
-// ============================================================
-
-function iniciarQuiz(quizId) {
-
-    const nomeInput =
-        document.getElementById("nomeAlunoInput");
+        const linhas =
+            bloco
+                .split(/\r?\n/)
+                .map(l => l.trim())
+                .filter(l => l !== "");
 
 
-    nomeAlunoGlobal =
-        nomeInput.value.trim();
+        let pergunta = "";
+
+        const opcoes = [];
+
+        let resposta = "";
+
+        let encontrouOpcao = false;
 
 
-    if (!nomeAlunoGlobal) {
+        for (let i = 0; i < linhas.length; i++) {
 
-        alert(
-            "Digite seu nome completo."
-        );
+            const linha = linhas[i];
 
-        return;
+
+            // ------------------------------------------
+            // RESPOSTA
+            // ------------------------------------------
+
+            const resp =
+                linha.match(
+                    /^Resposta\s*:\s*([ABCD])\s*$/i
+                );
+
+
+            if (resp) {
+
+                resposta =
+                    resp[1].toUpperCase();
+
+                continue;
+
+            }
+
+
+            // ------------------------------------------
+            // OPÇÃO
+            // ------------------------------------------
+
+            const opcao =
+                linha.match(
+                    /^([ABCD])\)\s*(.*)$/i
+                );
+
+
+            if (opcao) {
+
+                encontrouOpcao = true;
+
+                opcoes.push({
+                    letra: opcao[1].toUpperCase(),
+                    texto: opcao[2].trim()
+                });
+
+                continue;
+
+            }
+
+
+            // ------------------------------------------
+            // CONTINUAÇÃO DA OPÇÃO
+            // ------------------------------------------
+
+            if (encontrouOpcao && opcoes.length > 0) {
+
+                opcoes[opcoes.length - 1].texto +=
+                    " " + linha;
+
+                continue;
+
+            }
+
+
+            // ------------------------------------------
+            // TEXTO DA PERGUNTA
+            // ------------------------------------------
+
+            if (!encontrouOpcao) {
+
+                pergunta +=
+                    (pergunta ? " " : "") +
+                    linha;
+
+            }
+
+        }
+
+
+        if (!pergunta) {
+
+            throw new Error(
+                "A questão " +
+                numero +
+                " não possui pergunta."
+            );
+
+        }
+
+
+        if (opcoes.length !== 4) {
+
+            throw new Error(
+                "A questão " +
+                numero +
+                " precisa possuir exatamente 4 opções."
+            );
+
+        }
+
+
+        if (!resposta) {
+
+            throw new Error(
+                "A questão " +
+                numero +
+                " não possui 'Resposta: A/B/C/D'."
+            );
+
+        }
+
+
+        const indiceCorreta =
+            "ABCD".indexOf(resposta);
+
+
+        resultado.push({
+
+            numero: numero,
+
+            pergunta: pergunta,
+
+            opcoes: opcoes.map(o => o.texto),
+
+            correta: indiceCorreta
+
+        });
 
     }
 
 
-    document.getElementById("app").innerHTML = `
+    return resultado;
 
-        <h2>
+}
 
-        Carregando Quiz...
 
-        ⏳
+// ======================================================
+// COPIAR LINK
+// ======================================================
 
-        </h2>
+function copiarLink(link) {
 
-    `;
+    navigator.clipboard
+        .writeText(link)
+        .then(function() {
+
+            alert("Link copiado!");
+
+        });
+
+}
+
+
+// ======================================================
+// CARREGAR QUIZ
+// ======================================================
+
+function carregarQuiz() {
+
+    esconderTodas();
+
+    document
+        .getElementById("telaAluno")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("identificacao")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("areaQuiz")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("tituloAluno")
+        .textContent =
+        "Carregando quiz...";
 
 
     fetch(
-
         SCRIPT_URL +
         "?acao=buscar_quiz&id=" +
         encodeURIComponent(quizId)
-
     )
-
-
-    .then(function(res) {
-
-        return res.json();
-
-    })
-
-
+    .then(r => r.json())
     .then(function(data) {
 
 
-        if (
-            data.status === "erro" ||
-            !data.questoes ||
-            data.questoes.length === 0
-        ) {
+        if (!data.questoes ||
+            data.questoes.length === 0) {
 
-
-            document.getElementById("app").innerHTML = `
-
-                <h2>
-
-                Quiz não encontrado.
-
-                </h2>
-
-
-                <p style="text-align:center">
-
-                Verifique se o link está correto.
-
-                </p>
-
-            `;
-
+            document
+                .getElementById("tituloAluno")
+                .textContent =
+                "Quiz não encontrado.";
 
             return;
 
         }
 
 
-        quizAtual = data;
+        quizTema =
+            data.tema || "Quiz";
 
 
-        indiceQuestaoAtual = 0;
-
-        acertosAluno = 0;
-
-        respostasAluno = [];
-
-        quizFinalizado = false;
+        questoes =
+            data.questoes;
 
 
-        mostrarPerguntaAluno();
+        document
+            .getElementById("tituloAluno")
+            .textContent =
+            quizTema;
+
 
     })
-
-
     .catch(function(erro) {
 
-        document.getElementById("app").innerHTML = `
+        document
+            .getElementById("tituloAluno")
+            .textContent =
+            "Erro ao carregar o quiz.";
 
-            <h2>
-
-            Erro ao carregar o quiz.
-
-            </h2>
-
-
-            <p>
-
-            ${erro.message}
-
-            </p>
-
-        `;
+        console.error(erro);
 
     });
 
 }
 
 
-// ============================================================
+// ======================================================
+// INICIAR QUIZ
+// ======================================================
+
+function iniciarQuiz() {
+
+    nomeAluno =
+        document
+            .getElementById("nomeAluno")
+            .value
+            .trim();
+
+
+    if (!nomeAluno) {
+
+        alert("Digite o nome do aluno.");
+
+        return;
+
+    }
+
+
+    questaoAtual = 0;
+
+    respostasAluno = {};
+
+
+    document
+        .getElementById("identificacao")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("areaQuiz")
+        .classList.remove("hidden");
+
+
+    mostrarQuestao();
+
+}
+
+
+// ======================================================
 // MOSTRAR QUESTÃO
-// ============================================================
+// ======================================================
 
-function mostrarPerguntaAluno() {
-
-    if (quizFinalizado) {
-        return;
-    }
-
+function mostrarQuestao() {
 
     const q =
-        quizAtual.questoes[indiceQuestaoAtual];
+        questoes[questaoAtual];
 
 
-    let html = `
+    document
+        .getElementById("numeroQuestao")
+        .textContent =
+        "Questão " +
+        (questaoAtual + 1) +
+        " de " +
+        questoes.length;
 
 
-        <h3>
-
-        ${quizAtual.tema}
-
-        </h3>
-
-
-        <p>
-
-        <b>Aluno(a):</b>
-        ${nomeAlunoGlobal}
-
-        </p>
+    document
+        .getElementById("textoQuestao")
+        .textContent =
+        q.pergunta;
 
 
-        <div class="progresso">
-
-        Questão
-
-        ${indiceQuestaoAtual + 1}
-
-        de
-
-        ${quizAtual.questoes.length}
-
-        </div>
+    const opcoesDiv =
+        document.getElementById("opcoes");
 
 
-        <p style="font-size:17px;font-weight:500">
-
-        ${q.pergunta}
-
-        </p>
-
-    `;
+    opcoesDiv.innerHTML = "";
 
 
-    q.opcoes.forEach(function(opcao, index) {
+    q.opcoes.forEach(function(opcao, indice) {
+
+        const btn =
+            document.createElement("button");
 
 
-        html += `
+        btn.className = "opcao";
 
-            <button
-                class="opcao-btn"
-                onclick="selecionarOpcao(${index})">
 
-                ${String.fromCharCode(65 + index)})
-                ${opcao}
+        btn.textContent =
+            String.fromCharCode(65 + indice) +
+            ") " +
+            opcao;
 
-            </button>
 
-        `;
+        if (respostasAluno[q.numero] === indice) {
+
+            btn.classList.add("selecionada");
+
+        }
+
+
+        btn.onclick = function() {
+
+            selecionarOpcao(indice);
+
+        };
+
+
+        opcoesDiv.appendChild(btn);
 
     });
 
 
-    document.getElementById("app").innerHTML =
-        html;
+    // ----------------------------------------------
+    // PROGRESSO
+    // ----------------------------------------------
 
-}
-
-
-// ============================================================
-// SELECIONAR RESPOSTA
-// ============================================================
-
-function selecionarOpcao(index) {
-
-    if (quizFinalizado) {
-        return;
-    }
+    const progresso =
+        ((questaoAtual + 1) /
+        questoes.length) * 100;
 
 
-    const q =
-        quizAtual.questoes[indiceQuestaoAtual];
+    document
+        .getElementById("barraProgresso")
+        .style.width =
+        progresso + "%";
 
 
-    // Guarda a resposta
+    // ----------------------------------------------
+    // BOTÕES
+    // ----------------------------------------------
 
-    respostasAluno.push({
-
-        questao:
-            indiceQuestaoAtual + 1,
-
-        resposta:
-            String.fromCharCode(65 + index)
-
-    });
-
-
-    // Verifica acerto
-
-    if (index === q.correta) {
-
-        acertosAluno++;
-
-    }
+    document
+        .getElementById("btnAnterior")
+        .style.display =
+        questaoAtual === 0
+            ? "none"
+            : "inline-block";
 
 
-    // Próxima questão
+    if (questaoAtual === questoes.length - 1) {
 
-    indiceQuestaoAtual++;
+        document
+            .getElementById("btnProxima")
+            .classList.add("hidden");
 
-
-    if (
-        indiceQuestaoAtual <
-        quizAtual.questoes.length
-    ) {
-
-
-        mostrarPerguntaAluno();
-
+        document
+            .getElementById("btnFinalizar")
+            .classList.remove("hidden");
 
     } else {
 
+        document
+            .getElementById("btnProxima")
+            .classList.remove("hidden");
 
-        finalizarQuiz();
+        document
+            .getElementById("btnFinalizar")
+            .classList.add("hidden");
 
     }
 
 }
 
 
-// ============================================================
-// FINALIZAR
-// ============================================================
+// ======================================================
+// SELECIONAR OPÇÃO
+// ======================================================
 
-function finalizarQuiz() {
+function selecionarOpcao(indice) {
 
-    if (quizFinalizado) {
+    const q =
+        questoes[questaoAtual];
+
+
+    respostasAluno[q.numero] =
+        indice;
+
+
+    mostrarQuestao();
+
+}
+
+
+// ======================================================
+// ANTERIOR
+// ======================================================
+
+function questaoAnterior() {
+
+    if (questaoAtual > 0) {
+
+        questaoAtual--;
+
+        mostrarQuestao();
+
+    }
+
+}
+
+
+// ======================================================
+// PRÓXIMA
+// ======================================================
+
+function proximaQuestao() {
+
+    const q =
+        questoes[questaoAtual];
+
+
+    if (respostasAluno[q.numero] === undefined) {
+
+        alert("Selecione uma resposta antes de continuar.");
+
         return;
+
     }
 
 
-    quizFinalizado = true;
+    if (questaoAtual < questoes.length - 1) {
+
+        questaoAtual++;
+
+        mostrarQuestao();
+
+    }
+
+}
 
 
-    const total =
-        quizAtual.questoes.length;
+// ======================================================
+// FINALIZAR
+// ======================================================
+
+function finalizarQuiz() {
+
+    const naoRespondidas =
+        questoes.filter(function(q) {
+
+            return respostasAluno[q.numero] === undefined;
+
+        });
 
 
-    // --------------------------------------------------------
-    // Transformar respostas em texto
-    // --------------------------------------------------------
+    if (naoRespondidas.length > 0) {
 
-    const respostasTexto =
-        respostasAluno
-        .map(function(r) {
+        alert(
+            "Existem " +
+            naoRespondidas.length +
+            " questão(ões) sem resposta."
+        );
 
-            return r.questao +
-                   ":" +
-                   r.resposta;
+        return;
 
-        })
-        .join(", ");
+    }
 
 
-    document.getElementById("app").innerHTML = `
+    if (!confirm(
+        "Deseja realmente finalizar o quiz?"
+    )) {
 
-        <h2>
+        return;
 
-        Enviando resultado...
-
-        ⏳
-
-        </h2>
-
-    `;
+    }
 
 
-    // --------------------------------------------------------
-    // SALVAR
-    // --------------------------------------------------------
+    const idResposta =
+        "resp_" +
+        Date.now() +
+        "_" +
+        Math.floor(Math.random() * 1000000);
+
+
+    const respostas = questoes.map(function(q) {
+
+        return {
+
+            numero: q.numero,
+
+            resposta: respostasAluno[q.numero]
+
+        };
+
+    });
+
+
+    const dados = {
+
+        acao: "salvar_resposta",
+
+        id_resposta: idResposta,
+
+        id_quiz: quizId,
+
+        aluno: nomeAluno,
+
+        respostas: respostas
+
+    };
+
+
+    esconderTodas();
+
+
+    document
+        .getElementById("telaResultado")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("resultadoAluno")
+        .innerHTML =
+
+        "<p>Enviando suas respostas...</p>";
+
 
     fetch(SCRIPT_URL, {
 
@@ -1198,290 +1413,404 @@ function finalizarQuiz() {
 
         mode: "no-cors",
 
-        headers: {
-
-            "Content-Type":
-                "text/plain;charset=utf-8"
-
-        },
-
-        body: JSON.stringify({
-
-            acao: "salvar_resposta",
-
-            id: obterIdQuiz(),
-
-            tema: quizAtual.tema,
-
-            aluno: nomeAlunoGlobal,
-
-            acertos: acertosAluno,
-
-            total: total,
-
-            respostas: respostasTexto
-
-        })
+        body: JSON.stringify(dados)
 
     })
-
-
     .then(function() {
 
-
-        const percentual =
-            Math.round(
-                (acertosAluno / total) * 100
-            );
-
-
-        document.getElementById("app").innerHTML = `
-
-            <h2>
-
-            Quiz concluído! 🎉
-
-            </h2>
-
-
-            <p class="resultado-box">
-
-            ${acertosAluno}
-
-            de
-
-            ${total}
-
-            questões corretas
-
-            <br>
-
-            ${percentual}%
-
-            </p>
-
-
-            <p style="text-align:center;color:#636e72">
-
-            Seu resultado foi enviado ao professor.
-
-            </p>
-
-        `;
+        consultarResultado(idResposta);
 
     })
-
-
     .catch(function(erro) {
 
-        document.getElementById("app").innerHTML = `
+        document
+            .getElementById("resultadoAluno")
+            .innerHTML =
 
-            <h2>
+            "<p>Não foi possível enviar o resultado.</p>";
 
-            Não foi possível enviar o resultado.
-
-            </h2>
-
-
-            <p>
-
-            ${erro.message}
-
-            </p>
-
-        `;
+        console.error(erro);
 
     });
 
 }
 
 
-// ============================================================
-// OBTER ID DO QUIZ
-// ============================================================
+// ======================================================
+// CONSULTAR RESULTADO
+// ======================================================
 
-function obterIdQuiz() {
+function consultarResultado(idResposta) {
 
-    const parametros =
-        new URLSearchParams(
-            window.location.search
-        );
+    fetch(
+        SCRIPT_URL +
+        "?acao=buscar_resultado&id=" +
+        encodeURIComponent(idResposta)
+    )
+    .then(r => r.json())
+    .then(function(data) {
 
+        if (data.status === "sucesso") {
 
-    return parametros.get("id") || "";
+            mostrarResultado(data);
+
+        } else {
+
+            setTimeout(function() {
+
+                consultarResultado(idResposta);
+
+            }, 1000);
+
+        }
+
+    })
+    .catch(function() {
+
+        setTimeout(function() {
+
+            consultarResultado(idResposta);
+
+        }, 1500);
+
+    });
 
 }
 
 
-// ============================================================
-// RESULTADOS
-// ============================================================
+// ======================================================
+// MOSTRAR RESULTADO
+// ======================================================
 
-function carregarResultadosAlunos() {
+function mostrarResultado(data) {
 
-    document.getElementById("app").innerHTML = `
+    document
+        .getElementById("resultadoAluno")
+        .innerHTML = `
 
-        <h2>
+        <p>
+            <strong>Aluno:</strong>
+            ${escapeHTML(data.aluno)}
+        </p>
 
-        Carregando notas...
+        <p>
+            <strong>Tema:</strong>
+            ${escapeHTML(data.tema || "Sem tema")}
+        </p>
 
-        ⏳
+        <div class="nota">
+            ${data.percentual}%
+        </div>
 
-        </h2>
+        <h3>
+            ${data.acertos}
+            de
+            ${data.total}
+            questões corretas
+        </h3>
 
-    `;
-
-
-    fetch(
-
-        SCRIPT_URL +
-        "?acao=buscar_resultados"
-
-    )
-
-
-    .then(function(res) {
-
-        return res.json();
-
-    })
-
-
-    .then(function(dados) {
-
-
-        let html = `
-
-            <h2>
-
-            Notas dos Alunos
-
-            </h2>
+        <p>Quiz finalizado com sucesso.</p>
 
         `;
 
-
-        if (
-            !dados ||
-            dados.length === 0
-        ) {
+}
 
 
-            html += `
+// ======================================================
+// RESULTADOS
+// ======================================================
 
-                <p style="text-align:center">
+function mostrarResultados() {
 
-                Nenhuma resposta registrada.
+    esconderTodas();
 
-                </p>
-
-            `;
-
-
-        } else {
-
-
-            html += `
-
-                <table>
-
-                <tr>
-
-                <th>Data</th>
-
-                <th>Aluno</th>
-
-                <th>Quiz</th>
-
-                <th>Nota</th>
-
-                </tr>
-
-            `;
+    document
+        .getElementById("telaResultados")
+        .classList.remove("hidden");
 
 
-            dados.reverse().forEach(function(row) {
+    carregarQuizzes();
+
+}
 
 
-                html += `
+// ======================================================
+// CARREGAR QUIZZES
+// ======================================================
 
-                    <tr>
+function carregarQuizzes() {
 
-                    <td>
+    fetch(
+        SCRIPT_URL +
+        "?acao=listar_quizzes"
+    )
+    .then(r => r.json())
+    .then(function(quizzes) {
 
-                    ${new Date(row.data)
-                        .toLocaleDateString("pt-BR")}
-
-                    </td>
-
-
-                    <td>
-
-                    ${row.aluno}
-
-                    </td>
+        const select =
+            document.getElementById("filtroQuiz");
 
 
-                    <td>
-
-                    ${row.tema}
-
-                    </td>
+        select.innerHTML =
+            '<option value="">Todos os quizzes</option>';
 
 
-                    <td>
+        quizzes.forEach(function(q) {
 
-                    <b>
-
-                    ${row.acertos}/${row.total}
-
-                    </b>
-
-                    <br>
-
-                    ${Math.round(
-                        Number(row.percentual) * 100
-                    )}%
-
-                    </td>
-
-                    </tr>
-
-                `;
-
-            });
+            const option =
+                document.createElement("option");
 
 
-            html += `
+            option.value = q.id;
 
-                </table>
 
-            `;
+            option.textContent =
+                (q.tema || "Sem tema") +
+                " (" +
+                q.total +
+                " questões)";
+
+
+            select.appendChild(option);
+
+        });
+
+
+        carregarResultados();
+
+    });
+
+}
+
+
+// ======================================================
+// CARREGAR RESULTADOS
+// ======================================================
+
+function carregarResultados() {
+
+    fetch(
+        SCRIPT_URL +
+        "?acao=buscar_resultados"
+    )
+    .then(r => r.json())
+    .then(function(resultados) {
+
+
+        resultadosAtuais =
+            resultados;
+
+
+        const filtro =
+            document
+                .getElementById("filtroQuiz")
+                .value;
+
+
+        if (filtro) {
+
+            resultados =
+                resultados.filter(function(r) {
+
+                    return r.id_quiz === filtro;
+
+                });
 
         }
 
 
-        html += `
+        let html = `
 
-            <button
-                class="btn-secundario"
-                onclick="carregarPainelProfessor()">
+        <table class="tabela">
 
-                Voltar
+        <tr>
 
-            </button>
+            <th>Data</th>
+            <th>Aluno</th>
+            <th>Tema</th>
+            <th>Acertos</th>
+            <th>Percentual</th>
+
+        </tr>
 
         `;
 
 
-        document.getElementById("app").innerHTML =
-            html;
+        resultados.forEach(function(r) {
+
+            html += `
+
+            <tr>
+
+                <td>
+                    ${formatarData(r.data)}
+                </td>
+
+                <td>
+                    ${escapeHTML(r.aluno)}
+                </td>
+
+                <td>
+                    ${escapeHTML(r.tema || "Sem tema")}
+                </td>
+
+                <td>
+                    ${r.acertos}/${r.total}
+                </td>
+
+                <td>
+                    ${r.percentual}%
+                </td>
+
+            </tr>
+
+            `;
+
+        });
+
+
+        html += "</table>";
+
+
+        if (resultados.length === 0) {
+
+            html =
+                "<p>Nenhum resultado encontrado.</p>";
+
+        }
+
+
+        document
+            .getElementById("tabelaResultados")
+            .innerHTML = html;
+
+    });
+
+}
+
+
+// ======================================================
+// EXPORTAR CSV
+// ======================================================
+
+function exportarCSV() {
+
+    if (!resultadosAtuais.length) {
+
+        alert("Não existem resultados para exportar.");
+
+        return;
+
+    }
+
+
+    const filtro =
+        document
+            .getElementById("filtroQuiz")
+            .value;
+
+
+    let dados =
+        resultadosAtuais;
+
+
+    if (filtro) {
+
+        dados =
+            dados.filter(r =>
+                r.id_quiz === filtro
+            );
+
+    }
+
+
+    let csv =
+        "Data;Aluno;Tema;Acertos;Total;Percentual\n";
+
+
+    dados.forEach(function(r) {
+
+        csv +=
+
+            `"${formatarData(r.data)}";` +
+
+            `"${r.aluno}";` +
+
+            `"${r.tema || ""}";` +
+
+            `"${r.acertos}";` +
+
+            `"${r.total}";` +
+
+            `"${r.percentual}%"\n`;
 
     });
 
 
+    const blob =
+        new Blob(
+            ["\ufeff" + csv],
+            {type: "text/csv;charset=utf-8;"}
+        );
+
+
+    const url =
+        URL.createObjectURL(blob);
+
+
+    const a =
+        document.createElement("a");
+
+
+    a.href = url;
+
+    a.download =
+        "resultados_quiz.csv";
+
+
+    a.click();
+
+
+    URL.revokeObjectURL(url);
+
 }
 
+
+// ======================================================
+// UTILITÁRIOS
+// ======================================================
+
+function formatarData(data) {
+
+    if (!data) return "";
+
+    const d =
+        new Date(data);
+
+    if (isNaN(d)) return data;
+
+    return d.toLocaleString("pt-BR");
+
+}
+
+
+function escapeHTML(text) {
+
+    if (text === null ||
+        text === undefined) {
+
+        return "";
+
+    }
+
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
 
 </script>
 
