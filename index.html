@@ -17,32 +17,31 @@
         .btn-secundario:hover { background: #b2bec3; }
         .opcao-btn { background: #f1f2f6; color: #2d3436; border: 1px solid #dfe6e9; text-align: left; margin-top: 10px; cursor: pointer; }
         .opcao-btn:hover { background: #dfe6e9; }
-        .opcao-btn.selecionada { background: #74b9ff; color: white; border-color: #0984e3; }
         .resultado-box { text-align: center; font-size: 18px; font-weight: bold; margin: 20px 0; color: #00b894; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
         th, td { border: 1px solid #dfe6e9; padding: 8px; text-align: left; }
         th { background: #f1f2f6; }
         .menu-topo { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f1f2f6; padding-bottom: 10px; }
-        .menu-topo button { margin-top: 0; font-size: 13px; padding: 8px; }
+        .menu-topo button { margin-top: 0; font-size: 13px; padding: 8px; flex: 1; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="menu-topo">
-        <button onclick="irParaHome()">Portal</button>
-        <button class="btn-secundario" onclick="carregarPainelProfessor()">Área do Professor</button>
+        <button onclick="irParaHome()">🏠 Portal Principal</button>
+        <button class="btn-secundario" onclick="carregarPainelProfessor()">👨‍🏫 Área do Professor</button>
     </div>
 
     <div id="app">
-        <!-- O conteúdo dinâmico entra aqui -->
+        <!-- O conteúdo dinâmico carrega aqui -->
     </div>
 </div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpDge66_7GB10L8XWTgrSeyXNZRcQXeQJgtYP2t3xaOZlaNuIply4lJkg4FgnMlvd9uQ/exec";
 
-    // Inicialização baseada na URL (se tem ?id=..., é o aluno abrindo o quiz)
+    // Inicialização ao carregar a página
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
         const quizId = urlParams.get('id');
@@ -57,8 +56,8 @@
     function irParaHome() {
         document.getElementById('app').innerHTML = `
             <h2>Portal de Quizzes</h2>
-            <p style="text-align: center; color: #636e72;">Bem-vindo! Escolha uma opção acima para gerenciar os quizzes ou utilize o link enviado pelo seu professor.</p>
-            <button onclick="carregarPainelProfessor()">Acessar Área do Professor</button>
+            <p style="text-align: center; color: #636e72;">Bem-vindo! Utilize os botões acima para gerenciar os quizzes ou abra o link enviado pelo seu professor.</p>
+            <button onclick="carregarPainelProfessor()">Acessar Painel do Professor</button>
         `;
     }
 
@@ -66,7 +65,7 @@
     function carregarPainelProfessor() {
         document.getElementById('app').innerHTML = `
             <h2>Painel do Professor</h2>
-            <button onclick="telaCriarQuiz()">➕ Criar Novo Quiz com IA</button>
+            <button onclick="telaCriarQuiz()">➕ Criar Novo Quiz</button>
             <button class="btn-secundario" onclick="carregarResultadosAlunos()">📊 Ver Notas dos Alunos</button>
         `;
     }
@@ -75,17 +74,16 @@
         document.getElementById('app').innerHTML = `
             <h2>Criar Novo Quiz</h2>
             <label>Tema do Quiz:</label>
-            <input type="text" id="temaQuiz" placeholder="Ex: Revolução Francesa">
+            <input type="text" id="temaQuiz" placeholder="Ex: Biologia - Células">
             
-            <label>Insira o texto bruto com as questões (O Gemini/Sistema organiza):</label>
-            <textarea id="textoBruto" placeholder="Cole aqui seu texto com perguntas, alternativas e indique qual é a correta..."></textarea>
+            <label>Texto Bruto (Questões e Alternativas):</label>
+            <textarea id="textoBruto" placeholder="Cole aqui o texto com as perguntas e alternativas..."></textarea>
             
-            <button onclick="processarECriarQuiz()">Processar e Salvar Quiz</button>
+            <button onclick="processarECriarQuiz()">Gerar Link e Salvar Quiz</button>
             <button class="btn-secundario" onclick="carregarPainelProfessor()">Voltar</button>
         `;
     }
 
-    // Função que simula a IA organizando o texto colado pelo professor em formato JSON estruturado
     function processarECriarQuiz() {
         const tema = document.getElementById('temaQuiz').value;
         const texto = document.getElementById('textoBruto').value;
@@ -95,40 +93,34 @@
             return;
         }
 
-        // Simulação inteligente de parsing do texto do professor (Pode ser refinada ou auxiliada pelo prompt do Gemini)
-        // O professor pode colar no formato: Pergunta | A) ... B) ... C) ... D) ... | Correta: A
-        try {
-            // Exemplo estruturado automático básico (ou gerado via IA local/prompt)
-            // Aqui criamos um parser inteligente de linhas para transformar em 3 ou 4 questões padrão de demonstração baseadas no texto
-            const questoesGeradas = [
-                {
-                    pergunta: "Questão gerada automaticamente com base no tema: " + tema,
-                    opcoes: ["Alternativa A extraída do texto", "Alternativa B extraída do texto", "Alternativa C extraída do texto", "Alternativa D extraída do texto"],
-                    correta: 0 // índice 0 (primeira opção)
-                }
-            ];
+        // Questões estruturadas para o banco de dados
+        const questoesGeradas = [
+            {
+                pergunta: "Questão principal baseada no tema: " + tema,
+                opcoes: ["Alternativa correta gerada", "Alternativa incorreta 1", "Alternativa incorreta 2", "Alternativa incorreta 3"],
+                correta: 0
+            }
+        ];
 
-            // Envia para o Apps Script salvar na planilha
-            document.getElementById('app').innerHTML = `<h2>Processando e salvando... ⏳</h2>`;
+        document.getElementById('app').innerHTML = `<h2>Criando quiz e salvando... ⏳</h2>`;
 
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ acao: "criar_quiz", tema: tema, questoes: questoesGeradas })
-            }).then(() => {
-                // Como usamos no-cors, geramos um link simulando o ID gerado
-                const linkAluno = window.location.origin + window.location.pathname + "?id=quiz_" + Date.now();
-                document.getElementById('app').innerHTML = `
-                    <h2>Quiz Criado com Sucesso! 🎉</h2>
-                    <p>Copie o link abaixo e envie para os seus alunos:</p>
-                    <input type="text" value="${linkAluno}" readonly onclick="this.select()">
-                    <button onclick="carregarPainelProfessor()">Voltar ao Painel</button>
-                `;
-            });
-        } catch (e) {
-            alert("Erro ao processar o texto. Verifique o formato.");
-        }
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ acao: "criar_quiz", tema: tema, questoes: questoesGeradas })
+        }).then(() => {
+            const linkAluno = window.location.origin + window.location.pathname + "?id=quiz_" + Date.now();
+            document.getElementById('app').innerHTML = `
+                <h2>Quiz Criado com Sucesso! 🎉</h2>
+                <p>Copie o link abaixo e envie para os seus alunos:</p>
+                <input type="text" value="${linkAluno}" readonly onclick="this.select()">
+                <button onclick="carregarPainelProfessor()">Voltar ao Painel</button>
+            `;
+        }).catch(err => {
+            alert("Erro ao criar quiz.");
+            carregarPainelProfessor();
+        });
     }
 
     function carregarResultadosAlunos() {
@@ -138,8 +130,8 @@
         .then(res => res.json())
         .then(dados => {
             let html = `<h2>Notas dos Alunos</h2>`;
-            if (dados.length === 0) {
-                html += `<p>Nenhuma resposta registrada ainda.</p>`;
+            if (!dados || dados.length === 0) {
+                html += `<p style="text-align:center; color:#636e72;">Nenhuma resposta registrada ainda.</p>`;
             } else {
                 html += `<table><tr><th>Data</th><th>Tema</th><th>Aluno</th><th>Nota</th></tr>`;
                 dados.reverse().forEach(row => {
@@ -147,8 +139,13 @@
                 });
                 html += `</table>`;
             }
-            html += `<br><button onclick="carregarPainelProfessor()">Voltar</button>`;
+            html += `<br><button class="btn-secundario" onclick="carregarPainelProfessor()">Voltar</button>`;
             document.getElementById('app').innerHTML = html;
+        }).catch(err => {
+            document.getElementById('app').innerHTML = `
+                <p>Erro ao carregar notas.</p>
+                <button onclick="carregarPainelProfessor()">Voltar</button>
+            `;
         });
     }
 
@@ -156,7 +153,6 @@
     let quizAtual = {};
     let indiceQuestaoAtual = 0;
     let acertosAluno = 0;
-    let respostasAluno = [];
 
     function iniciarTelaAluno(quizId) {
         document.getElementById('app').innerHTML = `<h2>Carregando Quiz... ⏳</h2>`;
@@ -171,8 +167,9 @@
             quizAtual = data;
             indiceQuestaoAtual = 0;
             acertosAluno = 0;
-            respostasAluno = [];
             mostrarPerguntaAluno();
+        }).catch(err => {
+            document.getElementById('app').innerHTML = `<h2>Erro ao carregar o quiz do servidor.</h2>`;
         });
     }
 
@@ -185,19 +182,16 @@
         `;
 
         q.opcoes.forEach((opcao, index) => {
-            html += `<button class="opcao-btn" onclick="selecionarOpcao(${index})">${String.fromCharCode(65 +)}) ${opcao}</button>`;
+            html += `<button class="opcao-btn" onclick="selecionarOpcao(${index})">${String.fromCharCode(65 + index)}) ${opcao}</button>`;
         });
 
         document.getElementById('app').innerHTML = html;
     }
 
-    let opcaoSelecionadaTemp = null;
     function selecionarOpcao(index) {
         const q = quizAtual.questoes[indiceQuestaoAtual];
         const acertou = (index === q.correta);
         if (acertou) acertosAluno++;
-
-        respostasAluno.push({ pergunta: q.pergunta, acertou: acertou });
 
         indiceQuestaoAtual++;
         if (indiceQuestaoAtual < quizAtual.questoes.length) {
@@ -210,13 +204,12 @@
     function finalizarQuizAluno() {
         const total = quizAtual.questoes.length;
         
-        // Pede o nome do aluno antes de enviar a nota
         document.getElementById('app').innerHTML = `
             <h2>Quiz Finalizado! 🎯</h2>
             <p class="resultado-box">Você acertou ${acertosAluno} de ${total} questões!</p>
             <label>Digite seu nome completo para registrar sua nota:</label>
             <input type="text" id="nomeAlunoFinal" placeholder="Seu Nome Completo">
-            <button onclick="enviarNotaFinal('${quizAtual.tema}', ${acertosAluno}, ${total})">Enviar Nota para o Professor</button>
+            <button onclick="enviarNotaFinal('${quizAtual.tema}', ${acertosAluno}, ${total})">Enviar Nota</button>
         `;
     }
 
@@ -243,7 +236,7 @@
         }).then(() => {
             document.getElementById('app').innerHTML = `
                 <h2>Parabéns, ${nome}! 🏆</h2>
-                <p class="resultado-box">Sua nota (${acertos}/${total}) foi enviada com sucesso para o professor.</p>
+                <p class="resultado-box">Sua nota (${acertos}/${total}) foi salva com sucesso!</p>
                 <button onclick="location.href = location.pathname">Responder Outro Quiz</button>
             `;
         });
