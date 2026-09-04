@@ -37,7 +37,7 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbznFMQAFuACm3cGoTo8Z03kb_4FSmUYeWITdo4m_IOY6iTzeuAzJfd7dX8lSOm8sQRuWA/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtNmaXku7AJ9VyU19pu4tO0Wivhf8_rntM7qDbNmbKKwxSEh6ER4IbEyYpF8_EaK93MQ/exec";
 
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -140,15 +140,23 @@
                 return;
             }
 
-            document.getElementById('app').innerHTML = `<h2>Salvando ${questoesGeradas.length} questões na planilha... ⏳</h2>`;
+document.getElementById('app').innerHTML =
+    `<h2>Salvando ${questoesGeradas.length} questões na planilha... ⏳</h2>`;
 
-            fetch(SCRIPT_URL, {
+const quizId = "quiz_" + Date.now();
+
+fetch(SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
-                body: JSON.stringify({ acao: "criar_quiz", tema: tema, questoes: questoesGeradas })
+                body: JSON.stringify({ 
+    acao: "criar_quiz",
+    id: quizId,
+    tema: tema,
+    questoes: questoesGeradas
+})
             }).then(() => {
-                const linkAluno = window.location.origin + window.location.pathname + "?id=quiz_" + Date.now();
+                const linkAluno = window.location.origin + window.location.pathname + "?id=" + quizId;
                 document.getElementById('app').innerHTML = `
                     <h2>Quiz Criado com Sucesso! 🎉</h2>
                     <p>Foram importadas <b>${questoesGeradas.length} questões</b>.</p>
