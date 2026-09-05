@@ -1065,7 +1065,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbyXxhy6-l7EGIhntZIFeWHfyl4P5IdzyEiLe6s3Vbw_YsWbnZxnt8SYJGGPt6xDWWkehg/exec";
+"https://script.google.com/macros/s/AKfycbyjrkBBECrfNiYVioT_sn-tU9w3grgJLpf0JN5oarJvNRXTKawgao3IDHtqSeEptYoYUA/exec";
 
 
 // ======================================================
@@ -3048,6 +3048,20 @@ async function verProva(
                 escaparHTML(dados.mensagem || "Erro ao carregar a prova.") +
                 "</div>";
             return;
+        }
+
+        // O Apps Script pode retornar o resultado como objeto ou,
+        // em versões anteriores, diretamente como array de questões.
+        if (Array.isArray(dados)) {
+            if (dados.length === 0) {
+                info.innerHTML = "";
+                conteudo.innerHTML = "<p>Nenhuma resposta encontrada.</p>";
+                return;
+            }
+            dados = {
+                status: "sucesso",
+                questoes: dados
+            };
         }
 
         if (dados.status !== "sucesso" || !Array.isArray(dados.questoes) || dados.questoes.length === 0) {
