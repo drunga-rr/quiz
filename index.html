@@ -1653,14 +1653,22 @@ function mostrarSecaoProfessor(
 
     }
 
+
+    if (secao === "prova") {
+
+        document
+            .getElementById(
+                "secaoProva"
+            )
+            .classList.remove(
+                "hidden"
+            );
+
+    }
+
 }
 
-if (secao === "prova") {
 
-    document
-        .getElementById("secaoProva")
-        .classList.remove("hidden");
-}
 // ======================================================
 // LOGOUT
 // ======================================================
@@ -3009,21 +3017,19 @@ function formatarData(
 // VER PROVA
 // ======================================================
 
-async function verProva(idResposta) {
+async function verProva(
+    idResposta
+) {
 
     mostrarSecaoProfessor("prova");
 
-    const info =
-        document.getElementById("informacoesProva");
-
-    const conteudo =
-        document.getElementById("conteudoProva");
+    const info = document.getElementById("informacoesProva");
+    const conteudo = document.getElementById("conteudoProva");
 
     info.innerHTML = "Carregando...";
     conteudo.innerHTML = "";
 
     try {
-
         const url =
             SCRIPT_URL +
             "?acao=ver_prova" +
@@ -3033,368 +3039,84 @@ async function verProva(idResposta) {
             encodeURIComponent(tokenProfessor);
 
         const resposta = await fetch(url);
-
         const dados = await resposta.json();
 
-        console.log("Resposta ver_prova:", dados);
-
         if (dados.status === "erro") {
-
+            info.innerHTML = "";
             conteudo.innerHTML =
                 "<div class='error'>" +
-                escaparHTML(dados.mensagem) +
+                escaparHTML(dados.mensagem || "Erro ao carregar a prova.") +
                 "</div>";
-
             return;
         }
 
-        // -----------------------------------------------
-        // INFORMAÇÕES DO ALUNO
-        // -----------------------------------------------
+        if (dados.status !== "sucesso" || !Array.isArray(dados.questoes) || dados.questoes.length === 0) {
+            info.innerHTML = "";
+            conteudo.innerHTML = "<p>Nenhuma resposta encontrada.</p>";
+            return;
+        }
 
         info.innerHTML = `
-
             <p>
                 <strong>Aluno:</strong>
                 ${escaparHTML(dados.aluno || "")}
             </p>
-
             <p>
                 <strong>Tema:</strong>
-                ${escaparHTML(
-                    dados.tema || "Sem tema"
-                )}
+                ${escaparHTML(dados.tema || "Sem tema")}
             </p>
-
             <p>
                 <strong>Resultado:</strong>
-                ${dados.acertos}
-                de
-                ${dados.total}
+                ${dados.acertos} de ${dados.total}
                 (${dados.percentual}%)
             </p>
-
         `;
 
-        // -----------------------------------------------
-        // QUESTÕES
-        // -----------------------------------------------
-
-        const questoes = dados.questoes || [];
-
-        if (questoes.length === 0) {
-
-            conteudo.innerHTML =
-                "<p>Nenhuma resposta encontrada.</p>";
-
-            return;
-        }
-
-        questoes.forEach(function(q) {
-
+        dados.questoes.forEach(function(q) {
             const acertou =
                 q.acertou === true ||
-                String(q.acertou).toUpperCase() === "TRUE" ||
-                String(q.acertou).toUpperCase() === "SIM";
+                String(q.acertou).toUpperCase() === "SIM" ||
+                String(q.acertou).toUpperCase() === "TRUE";
 
-            const classe =
-                acertou ? "acerto" : "erro";
+            const classe = acertou ? "acerto" : "erro";
+            const textoStatus = acertou ? "✅ ACERTO" : "❌ ERRO";
 
-            const textoStatus =
-                acertou
-                    ? "✅ ACERTO"
-                    : "❌ ERRO";
-
-            const div =
-                document.createElement("div");
-
+            const div = document.createElement("div");
             div.className = "prova-questao";
 
             div.innerHTML = `
-
                 <div class="prova-pergunta">
-
                     ${q.questao}.
-                    ${escaparHTML(
-                        q.pergunta || ""
-                    )}
-
+                    ${escaparHTML(q.pergunta)}
                 </div>
 
                 <div class="resposta-box ${classe}">
-
-                    <strong>
-                        Resposta do aluno:
-                    </strong>
-
-                    ${escaparHTML(
-                        q.respostaAluno || "Não respondida"
-                    )}
-
+                    <strong>Resposta do aluno:</strong>
+                    ${escaparHTML(q.respostaAluno)}
                 </div>
 
                 <div class="resposta-box">
-
-                    <strong>
-                        Resposta correta:
-                    </strong>
-
-                    ${escaparHTML(
-                        q.respostaCorreta || ""
-                    )}
-
+                    <strong>Resposta correta:</strong>
+                    ${escaparHTML(q.respostaCorreta)}
                 </div>
 
                 <div class="resposta-box ${classe}">
-
-                    <strong>
-                        ${textoStatus}
-                    </strong>
-
+                    <strong>${textoStatus}</strong>
                 </div>
-
             `;
 
             conteudo.appendChild(div);
-
         });
 
     } catch (erro) {
-
-        console.error(
-            "Erro ao carregar prova:",
-            erro
-        );
-
+        info.innerHTML = "";
         conteudo.innerHTML =
             "<div class='error'>" +
             "Erro ao carregar a prova." +
             "</div>";
+        console.log(erro);
     }
 }
-      // ------------------------------------------------
-        // BUSCA RESULTADO
-        // ------------------------------------------------
-
-        const resultado =
-            todosResultados.find(
-                function(r) {
-
-                    return (
-                        String(
-                            r.id_resposta
-                        ) ===
-                        String(
-                            idResposta
-                        )
-                    );
-
-                }
-            );
-
-
-        if (resultado) {
-
-
-            info.innerHTML = `
-
-                <p>
-                    <strong>Aluno:</strong>
-                    ${escaparHTML(
-                        resultado.aluno
-                    )}
-                </p>
-
-                <p>
-                    <strong>Tema:</strong>
-                    ${escaparHTML(
-                        resultado.tema ||
-                        "Sem tema"
-                    )}
-                </p>
-
-                <p>
-                    <strong>Resultado:</strong>
-                    ${resultado.acertos}
-                    de
-                    ${resultado.total}
-                    (${resultado.percentual}%)
-                </p>
-
-            `;
-
-        }
-
-
-        // ------------------------------------------------
-        // BUSCA DETALHES
-        // ------------------------------------------------
-
-        const url =
-            SCRIPT_URL +
-            "?acao=ver_prova" +
-            "&id=" +
-            encodeURIComponent(
-                idResposta
-            ) +
-            "&token=" +
-            encodeURIComponent(
-                tokenProfessor
-            );
-
-
-        const resposta =
-            await fetch(url);
-
-
-        const dados =
-            await resposta.json();
-
-
-        if (
-            dados.status ===
-            "erro"
-        ) {
-
-
-            conteudo.innerHTML =
-                "<div class='error'>" +
-                escaparHTML(
-                    dados.mensagem
-                ) +
-                "</div>";
-
-
-            return;
-
-        }
-
-
-        if (
-            !Array.isArray(dados) ||
-            dados.length === 0
-        ) {
-
-
-            conteudo.innerHTML =
-                "<p>Nenhuma resposta encontrada.</p>";
-
-
-            return;
-
-        }
-
-
-        dados.forEach(
-            function(q) {
-
-
-                const acertou =
-                    String(
-                        q.acertou
-                    ).toUpperCase() ===
-                    "SIM";
-
-
-                const classe =
-                    acertou
-                        ? "acerto"
-                        : "erro";
-
-
-                const textoStatus =
-                    acertou
-                        ? "✅ ACERTO"
-                        : "❌ ERRO";
-
-
-                const div =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                div.className =
-                    "prova-questao";
-
-
-                div.innerHTML = `
-
-                    <div class="prova-pergunta">
-
-                        ${q.questao}.
-                        ${escaparHTML(
-                            q.pergunta
-                        )}
-
-                    </div>
-
-
-                    <div
-                        class="resposta-box ${classe}">
-
-                        <strong>
-                            Resposta do aluno:
-                        </strong>
-
-                        ${escaparHTML(
-                            q.respostaAluno
-                        )}
-
-                    </div>
-
-
-                    <div
-                        class="resposta-box">
-
-                        <strong>
-                            Resposta correta:
-                        </strong>
-
-                        ${escaparHTML(
-                            q.respostaCorreta
-                        )}
-
-                    </div>
-
-
-                    <div
-                        class="resposta-box ${classe}">
-
-                        <strong>
-                            ${textoStatus}
-                        </strong>
-
-                    </div>
-
-                `;
-
-
-                conteudo.appendChild(
-                    div
-                );
-
-            }
-        );
-
-
-    } catch (erro) {
-
-
-        conteudo.innerHTML =
-            "<div class='error'>" +
-            "Erro ao carregar a prova." +
-            "</div>";
-
-
-        console.log(
-            erro
-        );
-
-    }
-
-}
-
 
 // ======================================================
 // VOLTAR DOS RESULTADOS
