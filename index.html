@@ -1075,6 +1075,10 @@ Resposta: A
 
     </p>
 
+    <div id="questoesErradas" class="hidden" style="text-align:left; margin-top:25px;">
+        <h2>❌ Questões que você errou</h2>
+        <div id="listaQuestoesErradas"></div>
+    </div>
 
 </div>
 
@@ -2463,10 +2467,7 @@ async function carregarQuizzesProfessor() {
 
                     <p>
                         <strong>Status:</strong>
-                        ${quiz.bloqueado
-                         ? "🔒 Bloqueado"
-                         : '<span style="display: inline-block; width: 12px; height: 12px; background-color: #2ecc71; border-radius: 50%; vertical-align: middle; margin-right: 4px; margin-top: -2px;"></span> Aberto'
-                        }
+                        ${quiz.bloqueado ? "🔒 Bloqueado" : "🟢 Aberto"}
                     </p>
 
                     <div class="quiz-link">
@@ -3918,6 +3919,18 @@ async function finalizarQuiz(
     }
 
 
+    if (
+        !forcarFinalizacao &&
+        !confirm(
+            "Tem certeza que deseja finalizar o quiz?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
     const idResposta =
         "resp_" +
         Date.now() +
@@ -4208,6 +4221,56 @@ function mostrarResultadoAluno(
         )
         .textContent =
         mensagem;
+
+    // --------------------------------------------------
+    // MOSTRA AS QUESTÕES ERRADAS
+    // --------------------------------------------------
+    const containerErros = document.getElementById("questoesErradas");
+    const listaErros = document.getElementById("listaQuestoesErradas");
+
+    listaErros.innerHTML = "";
+
+    if (quizAtual && Array.isArray(quizAtual.questoes)) {
+        quizAtual.questoes.forEach(function(q, i) {
+            const respostaAluno = respostasAluno[i];
+            const respostaCorreta = Number(q.correta);
+
+            if (respostaAluno === respostaCorreta) return;
+
+            const numeroResposta = respostaAluno === null || respostaAluno === undefined
+                ? null : Number(respostaAluno);
+
+            const div = document.createElement("div");
+            div.className = "prova-questao erro";
+            div.style.textAlign = "left";
+
+            const textoRespostaAluno = numeroResposta === null || Number.isNaN(numeroResposta)
+                ? "Não respondida"
+                : String.fromCharCode(65 + numeroResposta) + ") " + q.opcoes[numeroResposta];
+
+            const textoRespostaCorreta = String.fromCharCode(65 + respostaCorreta) + ") " + q.opcoes[respostaCorreta];
+
+            div.innerHTML = `
+                <div class="prova-pergunta">
+                    ${escaparHTML(q.numero)}. ${escaparHTML(q.pergunta)}
+                </div>
+                <div class="resposta-box erro">
+                    <strong>Sua resposta:</strong> ${escaparHTML(textoRespostaAluno)}
+                </div>
+                <div class="resposta-box acerto">
+                    <strong>Resposta correta:</strong> ${escaparHTML(textoRespostaCorreta)}
+                </div>
+            `;
+
+            listaErros.appendChild(div);
+        });
+    }
+
+    if (listaErros.children.length > 0) {
+        containerErros.classList.remove("hidden");
+    } else {
+        containerErros.classList.add("hidden");
+    }
 
 }
 
