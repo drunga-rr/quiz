@@ -7,7 +7,7 @@
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <title>Sistema de Quiz</title>
 
 
@@ -233,6 +233,32 @@ label {
 
     margin-bottom: 20px;
 
+}
+
+.link-planilha {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.link-planilha a {
+    color: #1976d2;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.link-planilha a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+    .link-planilha {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 
@@ -652,8 +678,11 @@ th {
 
         <h1>👨‍🏫 Área do Professor</h1>
 
-<pre>Link da planilha: https://docs.google.com/spreadsheets/d/1tH7YKHKYq8Clby0ltjEH7QHFQtVa0lbzV7O6PjmPSDU/edit?usp=drive_link</pre>
-        <div class="menu">
+<div class="link-planilha">
+    <span>Link da planilha:</span>
+    <a href="https://docs.google.com/spreadsheets/d/1tH7YKHKYq8Clby0ltjEH7QHFQtVa0lbzV7O6PjmPSDU/edit?usp=drive_link" target="_blank" rel="noopener">Abrir planilha</a>
+</div>
+        <div class="menu no-print">
 
             <button onclick="mostrarSecaoProfessor('criar')">
                 ➕ Criar Quiz
@@ -785,12 +814,13 @@ Resposta: A
         <h2>📊 Resultados</h2>
 
 
-        <label>
+        <label class="no-print">
             Filtrar por quiz
         </label>
 
 
         <select
+            class="no-print"
             id="filtroQuiz"
             onchange="carregarResultados()">
 
@@ -1061,7 +1091,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbxBH4-S6jsBE1OFyVlDwBxKOD3TFRluso20mTE05PEuicF6__V0qU_V7Cpm5B9i906Zzg/exec";
+"https://script.google.com/macros/s/AKfycbz67LluJKJM4ToXU6OPlkNHcAri4J0tNo8jhBCMxna3qHtPvtaz1FEz_m-JhkkcdXfqUw/exec";
 
 
 // ======================================================
@@ -1075,6 +1105,8 @@ let quizAtual = null;
 let respostasAluno = [];
 
 let indiceQuestao = 0;
+let intervaloBloqueioQuiz = null;
+let quizFinalizadoPorBloqueio = false;
 
 let nomeAlunoAtual = "";
 
@@ -2429,6 +2461,11 @@ async function carregarQuizzesProfessor() {
                         ${quiz.total}
                     </p>
 
+                    <p>
+                        <strong>Status:</strong>
+                        ${quiz.bloqueado ? "🔒 Bloqueado" : "🟢 Aberto"}
+                    </p>
+
                     <div class="quiz-link">
                         ${escaparHTML(
                             link
@@ -2448,6 +2485,15 @@ async function carregarQuizzesProfessor() {
                             onclick="copiarLink('${encodeURIComponent(link)}')">
 
                             📋 Copiar link
+
+                        </button>
+
+                        <button
+                            class="warning"
+                            onclick="bloquearQuiz('${quiz.id}')"
+                            ${quiz.bloqueado ? "disabled" : ""}>
+
+                            ${quiz.bloqueado ? "🔒 Bloqueado" : "🔒 Bloquear quiz"}
 
                         </button>
 
@@ -2679,6 +2725,42 @@ function abrirLinkQuiz(
 // ======================================================
 // EXCLUIR QUIZ
 // ======================================================
+
+async function bloquearQuiz(idQuiz) {
+
+    if (!confirm(
+        "Bloquear este quiz?\n\n" +
+        "Os alunos que ainda estiverem respondendo serão finalizados automaticamente. " +
+        "As questões não respondidas ficarão em branco."
+    )) {
+        return;
+    }
+
+    try {
+        await fetch(
+            SCRIPT_URL,
+            {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
+                body: JSON.stringify({
+                    acao: "bloquear_quiz",
+                    id_quiz: idQuiz,
+                    token: tokenProfessor
+                })
+            }
+        );
+
+        alert("Quiz bloqueado com sucesso.");
+        carregarQuizzesProfessor();
+    } catch (erro) {
+        console.log(erro);
+        alert("Erro ao bloquear o quiz.");
+    }
+}
+
 
 async function excluirQuiz(
     idQuiz
@@ -3351,6 +3433,13 @@ async function abrirQuizAluno(
             await resposta.json();
 
 
+        if (dados.bloqueado) {
+            titulo.textContent = "Quiz bloqueado";
+            document.getElementById("identificacaoAluno").innerHTML =
+                "<div class='error'>Este quiz foi bloqueado pelo professor e não está mais disponível.</div>";
+            return;
+        }
+
         if (
             !dados.questoes ||
             dados.questoes.length === 0
@@ -3397,6 +3486,12 @@ async function abrirQuizAluno(
         titulo.textContent =
             dados.tema ||
             "Quiz";
+
+        quizFinalizadoPorBloqueio = false;
+        if (intervaloBloqueioQuiz) {
+            clearInterval(intervaloBloqueioQuiz);
+        }
+        intervaloBloqueioQuiz = setInterval(verificarBloqueioQuiz, 5000);
 
 
     } catch (erro) {
@@ -3746,8 +3841,44 @@ function proximaQuestao() {
 // FINALIZAR QUIZ
 // ======================================================
 
-async function finalizarQuiz() {
+async function verificarBloqueioQuiz() {
 
+    if (!quizAtual || !quizAtual.id || quizFinalizadoPorBloqueio) {
+        return;
+    }
+
+    try {
+        const url =
+            SCRIPT_URL +
+            "?acao=verificar_bloqueio" +
+            "&id=" +
+            encodeURIComponent(quizAtual.id);
+
+        const resposta = await fetch(url);
+        const dados = await resposta.json();
+
+        if (dados.status === "sucesso" && dados.bloqueado) {
+            quizFinalizadoPorBloqueio = true;
+            if (intervaloBloqueioQuiz) {
+                clearInterval(intervaloBloqueioQuiz);
+                intervaloBloqueioQuiz = null;
+            }
+            await finalizarQuiz(true);
+        }
+    } catch (erro) {
+        console.log(erro);
+    }
+}
+
+
+async function finalizarQuiz(
+    forcarFinalizacao = false
+) {
+
+    if (intervaloBloqueioQuiz) {
+        clearInterval(intervaloBloqueioQuiz);
+        intervaloBloqueioQuiz = null;
+    }
 
     // --------------------------------------------------
     // VERIFICA TODAS AS RESPOSTAS
@@ -3764,7 +3895,8 @@ async function finalizarQuiz() {
 
 
     if (
-        faltando !== -1
+        faltando !== -1 &&
+        !forcarFinalizacao
     ) {
 
 
@@ -3781,6 +3913,18 @@ async function finalizarQuiz() {
 
         mostrarQuestao();
 
+
+        return;
+
+    }
+
+
+    if (
+        !forcarFinalizacao &&
+        !confirm(
+            "Tem certeza que deseja finalizar o quiz?"
+        )
+    ) {
 
         return;
 
@@ -3832,7 +3976,10 @@ async function finalizarQuiz() {
             nomeAlunoAtual,
 
         respostas:
-            respostas
+            respostas,
+
+        forcar_finalizacao:
+            forcarFinalizacao
 
     };
 
@@ -3851,7 +3998,9 @@ async function finalizarQuiz() {
             "progresso"
         )
         .textContent =
-        "Salvando resultado...";
+        forcarFinalizacao
+            ? "O quiz foi bloqueado pelo professor. Finalizando..."
+            : "Salvando resultado...";
 
 
     // --------------------------------------------------
