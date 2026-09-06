@@ -1091,7 +1091,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbz67LluJKJM4ToXU6OPlkNHcAri4J0tNo8jhBCMxna3qHtPvtaz1FEz_m-JhkkcdXfqUw/exec";
+"https://script.google.com/macros/s/AKfycbyh1naQXJS9lbkuxHAngcCAwBZCBAasvakXRijQdOvS74gnDa8RSZHnmlXXnnBIl20/exec";
 
 
 // ======================================================
@@ -2490,10 +2490,9 @@ async function carregarQuizzesProfessor() {
 
                         <button
                             class="warning"
-                            onclick="bloquearQuiz('${quiz.id}')"
-                            ${quiz.bloqueado ? "disabled" : ""}>
+                            onclick="alternarBloqueioQuiz('${quiz.id}', ${quiz.bloqueado ? "true" : "false"})">
 
-                            ${quiz.bloqueado ? "🔒 Bloqueado" : "🔒 Bloquear quiz"}
+                            ${quiz.bloqueado ? "🔓 Desbloquear Quiz" : "🔒 Bloquear Quiz"}
 
                         </button>
 
@@ -2726,13 +2725,15 @@ function abrirLinkQuiz(
 // EXCLUIR QUIZ
 // ======================================================
 
-async function bloquearQuiz(idQuiz) {
+async function alternarBloqueioQuiz(idQuiz, estaBloqueado) {
 
-    if (!confirm(
-        "Bloquear este quiz?\n\n" +
-        "Os alunos que ainda estiverem respondendo serão finalizados automaticamente. " +
-        "As questões não respondidas ficarão em branco."
-    )) {
+    const acao = estaBloqueado ? "desbloquear" : "bloquear";
+
+    const mensagem = estaBloqueado
+        ? "Desbloquear este quiz?\n\nO quiz voltará a ficar disponível para os alunos. Os resultados já finalizados não serão alterados."
+        : "Bloquear este quiz?\n\nOs alunos que ainda estiverem respondendo serão finalizados automaticamente. As questões não respondidas ficarão em branco.";
+
+    if (!confirm(mensagem)) {
         return;
     }
 
@@ -2748,16 +2749,22 @@ async function bloquearQuiz(idQuiz) {
                 body: JSON.stringify({
                     acao: "bloquear_quiz",
                     id_quiz: idQuiz,
+                    bloqueado: !estaBloqueado,
                     token: tokenProfessor
                 })
             }
         );
 
-        alert("Quiz bloqueado com sucesso.");
+        alert(estaBloqueado
+            ? "Quiz desbloqueado com sucesso."
+            : "Quiz bloqueado com sucesso.");
+
         carregarQuizzesProfessor();
     } catch (erro) {
         console.log(erro);
-        alert("Erro ao bloquear o quiz.");
+        alert(estaBloqueado
+            ? "Erro ao desbloquear o quiz."
+            : "Erro ao bloquear o quiz.");
     }
 }
 
