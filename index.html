@@ -7,7 +7,7 @@
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <title>Sistema de Quiz</title>
 
 
@@ -1095,7 +1095,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbwUXOMm9yTDzZ2or-mg_f2GlFIqnbxcGFyW3kvSTnCk3BrRwZx8oDBhBSWIbGe3F_f8fw/exec";
+"https://script.google.com/macros/s/AKfycbxAih4V3f-F4eHhsvBQMc-Agk2cJq1uYfeV_JL3K-Jaozv_xag7XEALzo4RApSesHoGTg/exec";
 
 
 // ======================================================
@@ -4224,31 +4224,26 @@ function mostrarResultadoAluno(
 
     // --------------------------------------------------
     // MOSTRA AS QUESTÕES ERRADAS
+    // Os dados vêm do Apps Script, que consulta a aba Quizzes.
     // --------------------------------------------------
     const containerErros = document.getElementById("questoesErradas");
     const listaErros = document.getElementById("listaQuestoesErradas");
 
     listaErros.innerHTML = "";
 
-    if (quizAtual && Array.isArray(quizAtual.questoes)) {
-        quizAtual.questoes.forEach(function(q, i) {
-            const respostaAluno = respostasAluno[i];
-            const respostaCorreta = Number(q.correta);
-
-            if (respostaAluno === respostaCorreta) return;
-
-            const numeroResposta = respostaAluno === null || respostaAluno === undefined
-                ? null : Number(respostaAluno);
-
+    if (Array.isArray(resultado.questoesErradas)) {
+        resultado.questoesErradas.forEach(function(q) {
             const div = document.createElement("div");
             div.className = "prova-questao erro";
             div.style.textAlign = "left";
 
-            const textoRespostaAluno = numeroResposta === null || Number.isNaN(numeroResposta)
-                ? "Não respondida"
-                : String.fromCharCode(65 + numeroResposta) + ") " + q.opcoes[numeroResposta];
+            const textoRespostaAluno = q.respostaAluno
+                ? q.respostaAluno
+                : "Não respondida";
 
-            const textoRespostaCorreta = String.fromCharCode(65 + respostaCorreta) + ") " + q.opcoes[respostaCorreta];
+            const textoRespostaCorreta = q.respostaCorreta
+                ? q.respostaCorreta
+                : "Não encontrada";
 
             div.innerHTML = `
                 <div class="prova-pergunta">
