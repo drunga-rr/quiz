@@ -7,7 +7,7 @@
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <title>Sistema de Quiz</title>
 
 
@@ -2490,10 +2490,9 @@ async function carregarQuizzesProfessor() {
 
                         <button
                             class="warning"
-                            onclick="bloquearQuiz('${quiz.id}')"
-                            ${quiz.bloqueado ? "disabled" : ""}>
+                            onclick="alternarBloqueioQuiz('${quiz.id}', ${quiz.bloqueado ? "true" : "false"})">
 
-                            ${quiz.bloqueado ? "🔒 Bloqueado" : "🔒 Bloquear quiz"}
+                            ${quiz.bloqueado ? "🔓 Desbloquear Quiz" : "🔒 Bloquear Quiz"}
 
                         </button>
 
@@ -2726,38 +2725,32 @@ function abrirLinkQuiz(
 // EXCLUIR QUIZ
 // ======================================================
 
-async function bloquearQuiz(idQuiz) {
+async function alternarBloqueioQuiz(idQuiz, estaBloqueado) {
 
-    if (!confirm(
-        "Bloquear este quiz?\n\n" +
-        "Os alunos que ainda estiverem respondendo serão finalizados automaticamente. " +
-        "As questões não respondidas ficarão em branco."
-    )) {
-        return;
-    }
+    const mensagem = estaBloqueado
+        ? "Desbloquear este quiz?\n\nO quiz voltará a ficar disponível para os alunos. Os resultados já finalizados não serão alterados."
+        : "Bloquear este quiz?\n\nOs alunos que ainda estiverem respondendo serão finalizados automaticamente. As questões não respondidas ficarão em branco.";
+
+    if (!confirm(mensagem)) return;
 
     try {
-        await fetch(
-            SCRIPT_URL,
-            {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
-                body: JSON.stringify({
-                    acao: "bloquear_quiz",
-                    id_quiz: idQuiz,
-                    token: tokenProfessor
-                })
-            }
-        );
+        await fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+                acao: "bloquear_quiz",
+                id_quiz: idQuiz,
+                bloqueado: !estaBloqueado,
+                token: tokenProfessor
+            })
+        });
 
-        alert("Quiz bloqueado com sucesso.");
+        alert(estaBloqueado ? "Quiz desbloqueado com sucesso." : "Quiz bloqueado com sucesso.");
         carregarQuizzesProfessor();
     } catch (erro) {
         console.log(erro);
-        alert("Erro ao bloquear o quiz.");
+        alert(estaBloqueado ? "Erro ao desbloquear o quiz." : "Erro ao bloquear o quiz.");
     }
 }
 
