@@ -745,7 +745,7 @@ th {
 
 
         <p>
-            Use exatamente este formato:
+            Use este formato (A-D obrigatórias; E opcional):
         </p>
 
 
@@ -755,6 +755,7 @@ A) São Paulo
 B) Brasília
 C) Rio de Janeiro
 D) Belo Horizonte
+E) Recife
 Resposta: B
 
 2. Qual é o maior planeta do Sistema Solar?
@@ -1095,7 +1096,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbxAih4V3f-F4eHhsvBQMc-Agk2cJq1uYfeV_JL3K-Jaozv_xag7XEALzo4RApSesHoGTg/exec";
+"https://script.google.com/macros/s/AKfycby02sQB5IFlSgWXbLW9aRFo3p3VP93_gG9zBW09YyBHuyEWgpQRiUcFhDMFmCT_89CrrA/exec";
 
 
 // ======================================================
@@ -1831,13 +1832,13 @@ function interpretarQuestoes(
 
                 const opcao =
                     linha.match(
-                        /^([ABCD])\)\s*(.*)$/i
+                        /^([ABCDE])\)\s*(.*)$/i
                     );
 
 
                 const resp =
                     linha.match(
-                        /^Resposta\s*:\s*([ABCD])\s*$/i
+                        /^Resposta\s*:\s*([ABCDE])\s*$/i
                     );
 
 
@@ -1902,7 +1903,7 @@ function interpretarQuestoes(
             throw new Error(
                 "A questão " +
                 numero +
-                " precisa possuir as opções A), B), C) e D)."
+                " precisa possuir as opções A), B), C) e D). A opção E) é opcional."
             );
 
         }
@@ -1913,7 +1914,7 @@ function interpretarQuestoes(
             throw new Error(
                 "A questão " +
                 numero +
-                " não possui 'Resposta: A/B/C/D'."
+                " não possui 'Resposta: A/B/C/D/E'."
             );
 
         }
@@ -1945,7 +1946,9 @@ function interpretarQuestoes(
 
                 opcoes.C,
 
-                opcoes.D
+                opcoes.D,
+
+                ...(opcoes.E ? [opcoes.E] : [])
 
             ],
 
@@ -2467,10 +2470,7 @@ async function carregarQuizzesProfessor() {
 
                     <p>
                         <strong>Status:</strong>
-                        ${quiz.bloqueado
-                         ? "🔒 Bloqueado"
-                         : '<span style="display: inline-block; width: 12px; height: 12px; background-color: #2ecc71; border-radius: 50%; vertical-align: middle; margin-right: 4px; margin-top: -2px;"></span> Aberto'
-                        }
+                        ${quiz.bloqueado ? "🔒 Bloqueado" : "🟢 Aberto"}
                     </p>
 
                     <div class="quiz-link">
@@ -3644,7 +3644,11 @@ function mostrarQuestao() {
         "";
 
 
-    questao.opcoes.forEach(
+    questao.opcoes
+        .filter(function(opcao) {
+            return String(opcao || "").trim() !== "";
+        })
+        .forEach(
         function(opcao, i) {
 
 
@@ -3920,6 +3924,19 @@ async function finalizarQuiz(
         return;
 
     }
+
+
+    if (
+        !forcarFinalizacao &&
+        !confirm(
+            "Tem certeza que deseja finalizar o quiz?"
+        )
+    ) {
+
+        return;
+
+    }
+
 
     const idResposta =
         "resp_" +
