@@ -7,7 +7,7 @@
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <title>Sistema de Quiz</title>
 
 
@@ -742,13 +742,10 @@ th {
         <label>
             Questões
         </label>
-          <pre>
-Sugestão para pedir uma IA para criar um Quiz (copiar e editar):                
-Aja como um professor e crie um quiz com 10 questoes. 
-tema: Diversos. 8° ano fundamental. Nivel médio. 5 alternativas de respostas e apenas uma correta. Salve em um arquivo docx.
-          </pre>
-                <p>
-            Use exatamente este formato:
+
+
+        <p>
+            Use este formato (A-D obrigatórias; E opcional):
         </p>
 
 
@@ -760,7 +757,7 @@ C) Rio de Janeiro
 D) Belo Horizonte
 E) Recife
 Resposta: B
-ou
+
 2. Qual é o maior planeta do Sistema Solar?
 A) Júpiter
 B) Saturno
@@ -1099,7 +1096,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycby02sQB5IFlSgWXbLW9aRFo3p3VP93_gG9zBW09YyBHuyEWgpQRiUcFhDMFmCT_89CrrA/exec";
+"https://script.google.com/macros/s/AKfycbzQ4kqc34KFTYWFC-3N-cRxCQSX8LLcPiqOAnRJcGH-AGePMCgvcxJYTOh8lZiCBSCB5w/exec";
 
 
 // ======================================================
@@ -2473,10 +2470,7 @@ async function carregarQuizzesProfessor() {
 
                     <p>
                         <strong>Status:</strong>
-                        ${quiz.bloqueado
-                         ? "🔒 Bloqueado"
-                         : '<span style="display: inline-block; width: 12px; height: 12px; background-color: #2ecc71; border-radius: 50%; vertical-align: middle; margin-right: 4px; margin-top: -2px;"></span> Aberto'
-                        }
+                        ${quiz.bloqueado ? "🔒 Bloqueado" : "🟢 Aberto"}
                     </p>
 
                     <div class="quiz-link">
@@ -3926,6 +3920,18 @@ async function finalizarQuiz(
 
         mostrarQuestao();
 
+
+        return;
+
+    }
+
+
+    if (
+        !forcarFinalizacao &&
+        !confirm(
+            "Tem certeza que deseja finalizar o quiz?"
+        )
+    ) {
 
         return;
 
