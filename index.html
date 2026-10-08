@@ -7,7 +7,7 @@
 
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="favicon.ico" type="image/x-icon">
+
 <title>Sistema de Quiz</title>
 
 
@@ -742,13 +742,10 @@ th {
         <label>
             Questões
         </label>
-<pre>
-<strong>Sugestão para pedir uma IA para criar um Quiz (copiar e editar):</strong>
-Aja como um professor e crie um Quiz com 30 questões. 
-Tema: Diversos. 8° ano ensino fundamental. Nivel médio. 5 alternativas de respostas e apenas uma correta. Salve em um arquivo docx.
-</pre>
-                <p>
-            Use exatamente este formato:
+
+
+        <p>
+            Use este formato (A-D obrigatórias; E opcional):
         </p>
 
 
@@ -871,6 +868,8 @@ Resposta: A
 
                         <th>Aluno</th>
 
+                        <th>Turma</th>
+
                         <th>Tema</th>
 
                         <th>Acertos</th>
@@ -983,8 +982,19 @@ Resposta: A
             type="text"
             id="nomeAluno"
             placeholder="Digite seu nome..."
+            autocomplete="name"
         >
 
+        <label for="turmaAluno">Turma</label>
+        <input
+            type="text"
+            id="turmaAluno"
+            placeholder="Ex.: A"
+            maxlength="1"
+            pattern="[A-Za-z0-9]"
+            style="max-width:90px; text-transform:uppercase;"
+            autocomplete="off"
+        >
 
         <button onclick="iniciarQuiz()">
             ▶️ Iniciar Quiz
@@ -1099,7 +1109,7 @@ Resposta: A
 // ======================================================
 
 const SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycbzQ4kqc34KFTYWFC-3N-cRxCQSX8LLcPiqOAnRJcGH-AGePMCgvcxJYTOh8lZiCBSCB5w/exec";
+"https://script.google.com/macros/s/AKfycbz62hpsVaZHRCBROiBRsv93mq6LSDZGEijUkzBsRtcmUgHeiuici7QvnrHY45ADf9BEHg/exec";
 
 
 // ======================================================
@@ -1117,6 +1127,7 @@ let intervaloBloqueioQuiz = null;
 let quizFinalizadoPorBloqueio = false;
 
 let nomeAlunoAtual = "";
+let turmaAlunoAtual = "";
 
 let ultimoResultado = null;
 
@@ -2473,10 +2484,7 @@ async function carregarQuizzesProfessor() {
 
                     <p>
                         <strong>Status:</strong>
-                        ${quiz.bloqueado
-                         ? "🔒 Bloqueado"
-                         : '<span style="display: inline-block; width: 12px; height: 12px; background-color: #2ecc71; border-radius: 50%; vertical-align: middle; margin-right: 4px; margin-top: -2px;"></span> Aberto'
-                        }
+                        ${quiz.bloqueado ? "🔒 Bloqueado" : "🟢 Aberto"}
                     </p>
 
                     <div class="quiz-link">
@@ -2993,6 +3001,12 @@ async function carregarResultados() {
                     <td>
                         ${escaparHTML(
                             r.aluno
+                        )}
+                    </td>
+
+                    <td>
+                        ${escaparHTML(
+                            r.turma || ""
                         )}
                     </td>
 
@@ -3545,18 +3559,19 @@ function iniciarQuiz() {
             .trim();
 
 
+    const turma = document.getElementById("turmaAluno").value.trim().toUpperCase();
+
     if (!nome) {
-
-
-        alert(
-            "Digite seu nome."
-        );
-
-
+        alert("Digite seu nome.");
+        document.getElementById("nomeAluno").focus();
         return;
-
     }
 
+    if (!turma || !/^[A-Z0-9]$/.test(turma)) {
+        alert("Digite a turma com apenas um caractere, por exemplo A.");
+        document.getElementById("turmaAluno").focus();
+        return;
+    }
 
     if (
         !quizAtual ||
@@ -3574,9 +3589,8 @@ function iniciarQuiz() {
     }
 
 
-    nomeAlunoAtual =
-        nome;
-
+    nomeAlunoAtual = nome;
+    turmaAlunoAtual = turma;
 
     document
         .getElementById(
@@ -3931,6 +3945,19 @@ async function finalizarQuiz(
 
     }
 
+
+    if (
+        !forcarFinalizacao &&
+        !confirm(
+            "Tem certeza que deseja finalizar o quiz?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
     const idResposta =
         "resp_" +
         Date.now() +
@@ -3974,6 +4001,9 @@ async function finalizarQuiz(
 
         aluno:
             nomeAlunoAtual,
+
+        turma:
+            turmaAlunoAtual,
 
         respostas:
             respostas,
